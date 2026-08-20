@@ -1,163 +1,136 @@
 /*
- * Categories Page - Manage Product Categories
- * Create and delete categories for your shop
+ * Categories Page - View Marketplace Categories
+ * Display the platform-controlled product taxonomy
  */
 
 'use client'
 
 import * as React from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
-import { useCategories, useCreateCategory, useDeleteCategory } from '@/hooks/use-shop'
-import { Loader2, Plus, Trash2, Tag } from 'lucide-react'
+import { useCategories } from '@/hooks/use-shop'
+import { Loader2, Layers, ChevronRight } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 export default function CategoriesPage() {
   const { data: categories, isLoading } = useCategories()
-  const createCategory = useCreateCategory()
-  const deleteCategory = useDeleteCategory()
+  const [expandedIds, setExpandedIds] = React.useState<Set<string>>(new Set())
 
-  const [name, setName] = React.useState('')
-  const [error, setError] = React.useState<string | null>(null)
-  const [deletingId, setDeletingId] = React.useState<string | null>(null)
-
-  const handleCreate = async (e: React.FormEvent) => {
-    e.preventDefault()
-    const trimmed = name.trim()
-    if (!trimmed) return
-
-    setError(null)
-    try {
-      await createCategory.mutateAsync(trimmed)
-      setName('')
-    } catch (err: any) {
-      const msg = err?.response?.data?.message
-      setError(Array.isArray(msg) ? msg.join(', ') : (msg ?? 'Failed to create category. Please try again.'))
+  const toggleExpand = (id: string) => {
+    const newExpanded = new Set(expandedIds)
+    if (newExpanded.has(id)) {
+      newExpanded.delete(id)
+    } else {
+      newExpanded.add(id)
     }
+    setExpandedIds(newExpanded)
   }
 
-  const handleDelete = async (id: string) => {
-    setDeletingId(id)
-    try {
-      await deleteCategory.mutateAsync(id)
-    } catch {
-      // silently ignore — table will stay in sync via query invalidation
-    } finally {
-      setDeletingId(null)
-    }
+  const renderCategoryTree = (cats: any[] | undefined, depth = 0): React.ReactNode => {
+    if (!cats || cats.length === 0) return null
+
+    return (
+      <div>
+        {cats.map((cat: any) => {
+          const hasChildren = cat.children && cat.children.length > 0
+          const isExpanded = expandedIds.has(cat.id)
+
+          return (
+            <div key={cat.id}>
+              <div
+                className={cn(
+                  'flex items-center gap-2 px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors',
+                  !cat.isActive && 'opacity-50'
+                )}
+                style={{ marginLeft: `${depth * 16}px` }}
+              >
+                {hasChildren ? (
+                  <button
+                    onClick={() => toggleExpand(cat.id)}
+                    className="flex-shrink-0"
+                  >
+                    <ChevronRight
+                      size={16}
+                      className={cn(
+                        'transition-transform',
+                        isExpanded && 'rotate-90'
+                      )}
+                    />
+                  </button>
+                ) : (
+                  <div className="w-4" />
+                )}
+
+                <div className="flex-1 min-w-0">
+                  <div className="font-medium truncate">{cat.name}</div>
+                  {cat.description && (
+                    <div className="text-xs text-gray-500 truncate">{cat.description}</div>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  {cat._count?.products && (
+                    <Badge variant="secondary" className="text-xs">
+                      {cat._count.products} products
+                    </Badge>
+                  )}
+                  {!cat.isActive && (
+                    <Badge variant="destructive" className="text-xs">
+                      Inactive
+                    </Badge>
+                  )}
+                </div>
+              </div>
+
+              {isExpanded && renderCategoryTree(cat.children, depth + 1)}
+            </div>
+          )
+        })}
+      </div>
+    )
   }
 
   return (
     <>
       <div className="mb-6">
         <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Categories</h1>
-        <p className="text-sm text-muted-foreground">Organise your products into categories</p>
+        <p className="text-sm text-muted-foreground">
+          Platform marketplace categories. Select these when creating products.
+        </p>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
-
-        {/* ── Add category form ── */}
-        <div>
-          <Card>
-            <CardHeader>
-              <CardTitle>New Category</CardTitle>
-              <CardDescription>Add a category to your shop</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleCreate} className="space-y-3">
-                <Input
-                  placeholder="e.g. Electronics"
-                  value={name}
-                  onChange={(e) => {
-                    setName(e.target.value)
-                    setError(null)
-                  }}
-                  disabled={createCategory.isPending}
-                  autoFocus
-                />
-                {error && (
-                  <p className="text-xs text-destructive">{error}</p>
-                )}
-                <Button
-                  type="submit"
-                  className="w-full"
-                  disabled={!name.trim() || createCategory.isPending}
-                >
-                  {createCategory.isPending ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Adding…
-                    </>
-                  ) : (
-                    <>
-                      <Plus className="mr-2 h-4 w-4" />
-                      Add Category
-                    </>
-                  )}
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* ── Category list ── */}
-        <div className="lg:col-span-2">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <span>Your Categories</span>
-                {!isLoading && (
-                  <Badge variant="secondary">{categories?.length ?? 0}</Badge>
-                )}
-              </CardTitle>
-              <CardDescription>Categories are scoped to your shop and used when adding products</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {isLoading ? (
-                <div className="flex items-center justify-center py-12">
-                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-                </div>
-              ) : !categories?.length ? (
-                <div className="flex flex-col items-center justify-center gap-2 py-12 text-center">
-                  <div className="rounded-full bg-muted p-4">
-                    <Tag className="h-6 w-6 text-muted-foreground" />
-                  </div>
-                  <p className="text-sm font-medium">No categories yet</p>
-                  <p className="text-xs text-muted-foreground">Add your first category using the form on the left</p>
-                </div>
-              ) : (
-                <ul className="divide-y">
-                  {categories.map((cat: any) => (
-                    <li key={cat.id} className="flex items-center justify-between py-3">
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary/10">
-                          <Tag className="h-4 w-4 text-primary" />
-                        </div>
-                        <span className="text-sm font-medium">{cat.name}</span>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                        disabled={deletingId === cat.id}
-                        onClick={() => handleDelete(cat.id)}
-                      >
-                        {deletingId === cat.id ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : (
-                          <Trash2 className="h-4 w-4" />
-                        )}
-                      </Button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Layers size={20} />
+            <span>Marketplace Categories</span>
+          </CardTitle>
+          <CardDescription>
+            These are the platform-controlled product categories. Use them to organize your products.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            </div>
+          ) : !categories || categories.length === 0 ? (
+            <div className="flex flex-col items-center justify-center gap-2 py-12 text-center">
+              <div className="rounded-full bg-muted p-4">
+                <Layers className="h-6 w-6 text-muted-foreground" />
+              </div>
+              <p className="text-sm font-medium">No categories available</p>
+              <p className="text-xs text-muted-foreground">
+                Contact platform support if categories are not loading
+              </p>
+            </div>
+          ) : (
+            <div className="border rounded-lg p-4 max-h-96 overflow-y-auto">
+              {renderCategoryTree(categories)}
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </>
   )
 }

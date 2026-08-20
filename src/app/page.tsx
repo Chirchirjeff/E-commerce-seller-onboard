@@ -13,9 +13,23 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { ThemeToggle } from '@/components/ui/theme-toggle'
 
+interface PlatformStats {
+  activeSellers?: number
+  productsListed?: number
+  happyCustomers?: number
+  uptime?: number
+}
+
 export default function LandingPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = React.useState(false)
+  const [statsLoading, setStatsLoading] = React.useState(true)
+  const [platformStats, setPlatformStats] = React.useState<PlatformStats>({
+    activeSellers: 10000,
+    productsListed: 50000,
+    happyCustomers: 100000,
+    uptime: 99.9,
+  })
 
   React.useEffect(() => {
     // Check if user is already logged in
@@ -24,6 +38,33 @@ export default function LandingPage() {
       router.replace('/dashboard')
     }
   }, [router])
+
+  React.useEffect(() => {
+    // Fetch real platform statistics
+    const fetchPlatformStats = async () => {
+      try {
+        setStatsLoading(true)
+        const response = await fetch('/api/analytics/platform-stats')
+        
+        if (response.ok) {
+          const data = await response.json()
+          setPlatformStats({
+            activeSellers: data.activeSellers || 10000,
+            productsListed: data.productsListed || 50000,
+            happyCustomers: data.happyCustomers || 100000,
+            uptime: data.uptime || 99.9,
+          })
+        }
+      } catch (err) {
+        // Fall back to default stats if API fails
+        console.error('Failed to fetch platform stats:', err)
+      } finally {
+        setStatsLoading(false)
+      }
+    }
+
+    fetchPlatformStats()
+  }, [])
 
   const features = [
     {
@@ -48,11 +89,21 @@ export default function LandingPage() {
     },
   ]
 
+  const formatNumber = (num: number) => {
+    if (num >= 1000000) {
+      return `${(num / 1000000).toFixed(0)}M+`
+    }
+    if (num >= 1000) {
+      return `${(num / 1000).toFixed(0)}K+`
+    }
+    return num.toString()
+  }
+
   const stats = [
-    { value: '10K+', label: 'Active Sellers' },
-    { value: '50K+', label: 'Products Listed' },
-    { value: '100K+', label: 'Happy Customers' },
-    { value: '99.9%', label: 'Uptime Guarantee' },
+    { value: formatNumber(platformStats.activeSellers || 10000), label: 'Active Sellers' },
+    { value: formatNumber(platformStats.productsListed || 50000), label: 'Products Listed' },
+    { value: formatNumber(platformStats.happyCustomers || 100000), label: 'Happy Customers' },
+    { value: `${platformStats.uptime || 99.9}%`, label: 'Uptime Guarantee' },
   ]
 
   return (
@@ -88,7 +139,7 @@ export default function LandingPage() {
           <div className="mx-auto max-w-4xl text-center">
             <div className="inline-flex items-center rounded-full border bg-primary/10 px-4 py-1.5 text-sm text-primary mb-6">
               <Star className="mr-2 h-4 w-4" />
-              Trusted by 10,000+ sellers
+              Trusted by {formatNumber(platformStats.activeSellers || 10000)} sellers
             </div>
             <h1 className="text-4xl font-bold tracking-tight sm:text-6xl">
               Start Selling with{' '}

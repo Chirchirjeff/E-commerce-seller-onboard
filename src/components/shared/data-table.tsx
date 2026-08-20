@@ -26,6 +26,8 @@ interface DataTableProps {
   columns: Column[]
   className?: string
   onRowClick?: (row: any) => void
+  onEdit?: (row: any) => void
+  onDelete?: (row: any) => void
   isLoading?: boolean
   emptyMessage?: string
 }
@@ -37,6 +39,8 @@ export function DataTable({
   columns,
   className,
   onRowClick,
+  onEdit,
+  onDelete,
   isLoading = false,
   emptyMessage = 'No data available',
 }: DataTableProps) {
@@ -113,12 +117,30 @@ export function DataTable({
                       </td>
                     ))}
                     <td className="px-4 py-3 text-right">
-                      <Button variant="ghost" size="sm">
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="sm">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
+                      {onEdit && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            onEdit(row)
+                          }}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                      )}
+                      {onDelete && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            onDelete(row)
+                          }}
+                        >
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      )}
                     </td>
                   </tr>
                 ))

@@ -34,7 +34,7 @@ export default function NewProductPage() {
     description: '',
     price: '',
     stockQuantity: '',
-    categoryId: '',
+    marketplaceCategoryId: '',
   })
 
   // Each entry: { previewUrl: string (local blob), remoteUrl: string | null }
@@ -140,9 +140,8 @@ export default function NewProductPage() {
         description: formData.description || undefined,
         price: parsedPrice,
         stockQuantity: parsedStock,
-        // Only send categoryId if the user actually selected one —
-        // an empty string would make the backend try to look up category id ""
-        categoryId: formData.categoryId || undefined,
+        // Send marketplaceCategoryId (required field for backend)
+        marketplaceCategoryId: formData.marketplaceCategoryId || undefined,
         // First image becomes the thumbnail; all go into imageUrls for the gallery
         thumbnailUrl: imageUrls[0] ?? undefined,
         imageUrls: imageUrls.length > 0 ? imageUrls : undefined,
@@ -247,8 +246,8 @@ export default function NewProductPage() {
                 <div className="space-y-2">
                   <Label htmlFor="category">Category</Label>
                   <Select
-                    value={formData.categoryId}
-                    onValueChange={(value) => setFormData({ ...formData, categoryId: value })}
+                    value={formData.marketplaceCategoryId}
+                    onValueChange={(value) => setFormData({ ...formData, marketplaceCategoryId: value })}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select a category" />

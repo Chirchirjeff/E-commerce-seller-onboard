@@ -30,7 +30,7 @@ export function useUpdateProduct() {
   
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: any }) => {
-      const { data: product } = await apiClient.patch(`/products/${id}`, data)
+      const { data: product } = await apiClient.put(`/products/${id}`, data)
       return product
     },
     onSuccess: () => {

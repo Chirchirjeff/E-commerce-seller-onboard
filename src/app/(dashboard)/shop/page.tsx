@@ -7,7 +7,10 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { useShop, useUpdateShop } from '@/hooks/use-shop'
-import { Store, Upload, Loader2, CheckCircle2 } from 'lucide-react'
+import { Store, Loader2, CheckCircle2 } from 'lucide-react'
+import ImageUploadField from '@/components/ui/image-upload-field'
+import ShopLinksManager from '@/components/shop/ShopLinksManager'
+import ShopLinksAnalytics from '@/components/shop/ShopLinksAnalytics'
 
 export default function ShopPage() {
   const { data: shop, isLoading } = useShop()
@@ -16,6 +19,7 @@ export default function ShopPage() {
     name: '',
     businessDescription: '',
     businessLogo: '',
+    coverPhoto: '',
   })
   const [isEditing, setIsEditing] = React.useState(false)
   const [success, setSuccess] = React.useState('')
@@ -26,6 +30,7 @@ export default function ShopPage() {
         name: shop.name || '',
         businessDescription: shop.businessDescription || '',
         businessLogo: shop.businessLogo || '',
+        coverPhoto: shop.coverPhoto || '',
       })
     }
   }, [shop])
@@ -84,14 +89,14 @@ export default function ShopPage() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-2 space-y-6">
           <Card>
             <CardHeader>
               <CardTitle>Shop Information</CardTitle>
               <CardDescription>Update your shop details and branding</CardDescription>
             </CardHeader>
             <form onSubmit={handleSubmit}>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-6">
                 {success && (
                   <div className="rounded-md bg-green-500/10 p-3 text-sm text-green-600 flex items-center gap-2">
                     <CheckCircle2 className="h-4 w-4" />{success}
@@ -112,25 +117,75 @@ export default function ShopPage() {
                     placeholder="Describe your business..."
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label>Shop Logo</Label>
-                  <div className="flex items-center gap-4">
-                    {formData.businessLogo && (
-                      <div className="h-20 w-20 rounded-lg border overflow-hidden">
-                        <img src={formData.businessLogo} alt="Shop logo" className="h-full w-full object-cover" />
-                      </div>
-                    )}
-                    <Button type="button" variant="outline" disabled={!isEditing} className="gap-2">
-                      <Upload className="h-4 w-4" />Upload Logo
-                    </Button>
+                
+                {isEditing && (
+                  <>
+                    <ImageUploadField
+                      label="Shop Logo"
+                      value={formData.businessLogo}
+                      onChange={(url) => setFormData({ ...formData, businessLogo: url })}
+                      disabled={!isEditing}
+                    />
+                    <ImageUploadField
+                      label="Shop Cover Photo"
+                      value={formData.coverPhoto}
+                      onChange={(url) => setFormData({ ...formData, coverPhoto: url })}
+                      disabled={!isEditing}
+                    />
+                  </>
+                )}
+
+                {!isEditing && (
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label>Shop Logo</Label>
+                      {formData.businessLogo ? (
+                        <div className="h-20 w-20 rounded-lg border overflow-hidden bg-muted flex items-center justify-center">
+                          <img 
+                            src={formData.businessLogo} 
+                            alt="Shop logo" 
+                            className="h-full w-full object-cover"
+                            crossOrigin="anonymous"
+                            onError={(e) => {
+                              console.error('Logo failed to load:', formData.businessLogo)
+                              const img = e.target as HTMLImageElement
+                              img.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="80" height="80"%3E%3Crect fill="%23e0e7ff" width="80" height="80"/%3E%3Ctext x="50%" y="50%" font-size="12" fill="%236366f1" text-anchor="middle" dy=".3em"%3ENo Image%3C/text%3E%3C/svg%3E'
+                            }}
+                          />
+                        </div>
+                      ) : (
+                        <p className="text-sm text-muted-foreground">No logo uploaded</p>
+                      )}
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Shop Cover Photo</Label>
+                      {formData.coverPhoto ? (
+                        <div className="h-32 w-full rounded-lg border overflow-hidden bg-muted flex items-center justify-center">
+                          <img 
+                            src={formData.coverPhoto} 
+                            alt="Shop cover" 
+                            className="h-full w-full object-cover"
+                            crossOrigin="anonymous"
+                            onError={(e) => {
+                              console.error('Cover photo failed to load:', formData.coverPhoto)
+                              const img = e.target as HTMLImageElement
+                              img.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="128"%3E%3Crect fill="%23e0e7ff" width="400" height="128"/%3E%3Ctext x="50%" y="50%" font-size="14" fill="%236366f1" text-anchor="middle" dy=".3em"%3ENo Image%3C/text%3E%3C/svg%3E'
+                            }}
+                          />
+                        </div>
+                      ) : (
+                        <p className="text-sm text-muted-foreground">No cover photo uploaded</p>
+                      )}
+                    </div>
                   </div>
-                </div>
+                )}
+
                 {isEditing && (
                   <div className="flex gap-3 pt-2">
                     <Button type="submit" disabled={updateShop.isPending}>
                       {updateShop.isPending ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Saving…</> : 'Save Changes'}
                     </Button>
-                    <Button type="button" variant="outline" onClick={() => { setIsEditing(false); setFormData({ name: shop.name, businessDescription: shop.businessDescription || '', businessLogo: shop.businessLogo || '' }) }}>
+                    <Button type="button" variant="outline" onClick={() => { setIsEditing(false); setFormData({ name: shop.name, businessDescription: shop.businessDescription || '', businessLogo: shop.businessLogo || '', coverPhoto: shop.coverPhoto || '' }) }}>
                       Cancel
                     </Button>
                   </div>
@@ -138,6 +193,8 @@ export default function ShopPage() {
               </CardContent>
             </form>
           </Card>
+
+          <ShopLinksManager />
         </div>
 
         <div>
@@ -165,6 +222,12 @@ export default function ShopPage() {
             </CardContent>
           </Card>
         </div>
+      </div>
+
+      {/* Analytics Section */}
+      <div className="mt-8">
+        <h2 className="text-2xl font-bold tracking-tight mb-6">Share Link Analytics</h2>
+        <ShopLinksAnalytics shopId={shop?.id} />
       </div>
     </>
   )

@@ -41,11 +41,25 @@ export function useRecentOrders(limit: number = 5) {
   })
 }
 
-export function useCategories() {
+// Fetch seller-scoped categories (shop-specific categories)
+export function useShopCategories() {
   return useQuery({
-    queryKey: ['categories'],
+    queryKey: ['shop-categories'],
     queryFn: async () => {
       const { data } = await apiClient.get('/categories')
+      return data
+    },
+  })
+}
+
+// Fetch marketplace categories (platform-controlled taxonomy)
+export function useCategories() {
+  return useQuery({
+    queryKey: ['marketplace-categories'],
+    queryFn: async () => {
+      const { data } = await apiClient.get('/marketplace-categories', {
+        params: { tree: 'true' },
+      })
       return data
     },
   })

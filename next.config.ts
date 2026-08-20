@@ -2,7 +2,7 @@ import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
   images: {
-    // Remove domains: [] - it's deprecated
+    // Allow all remote patterns for development
     remotePatterns: [
       {
         protocol: 'https',
@@ -10,13 +10,13 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'http',
-        hostname: 'localhost',
-      },
-      {
-        protocol: 'https',
-        hostname: 'via.placeholder.com',
+        hostname: '**',
       },
     ],
+    // Allow local IP addresses for development (required for localhost:4000 uploads)
+    dangerouslyAllowLocalIP: true,
+    // Disable Image Optimization for local development to avoid localhost issues
+    unoptimized: process.env.NODE_ENV === 'development',
   },
   reactStrictMode: true,
   // swcMinify is removed - it's now enabled by default in Next.js 14+
