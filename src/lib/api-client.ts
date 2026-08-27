@@ -26,6 +26,10 @@ export function getFriendlyError(
   context?: 'login' | 'register' | 'kyc' | 'general',
 ): string {
   const status: number | undefined = err?.response?.status
+  // Surface backend validation messages when they are safe to show (4xx client errors).
+  // The backend sends a human-readable `message` field for things like
+  // "Password must be at least 8 characters" — pass those straight through.
+  const backendMessage: string | undefined = err?.response?.data?.message
 
   if (process.env.NODE_ENV !== 'production') {
     console.error('[API Error]', err)
@@ -35,6 +39,9 @@ export function getFriendlyError(
 
   switch (status) {
     case 400:
+      // Prefer the backend's own validation message (e.g. "Password must be at
+      // least 8 characters") over the generic fallback.
+      if (backendMessage) return backendMessage
       return context === 'register'
         ? 'Please fill in all required fields correctly.'
         : 'Please check your details and try again.'
@@ -53,6 +60,8 @@ export function getFriendlyError(
         ? 'An account with this email already exists. Try signing in instead.'
         : 'This record already exists.'
     case 422:
+      // 422 Unprocessable Entity also carries validation detail from the backend.
+      if (backendMessage) return backendMessage
       return 'Please check your details and try again.'
     case 429:
       return 'Too many attempts. Please wait a moment and try again.'

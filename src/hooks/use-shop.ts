@@ -36,7 +36,18 @@ export function useRecentOrders(limit: number = 5) {
     queryKey: ['shop', 'orders', 'recent', limit],
     queryFn: async () => {
       const { data } = await apiClient.get(`/orders/recent?limit=${limit}`)
-      return data
+      // Transform raw API response to match the column keys used in the dashboard table
+      return data.map((order: any) => ({
+        id: order.orderNumber || order.id,
+        customer: order.deliveryName || order.buyer?.name || 'Unknown',
+        amount: order.total,
+        status: order.status,
+        date: new Date(order.createdAt).toLocaleDateString('en-KE', {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+        }),
+      }))
     },
   })
 }

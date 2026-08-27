@@ -13,7 +13,6 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Badge } from '@/components/ui/badge'
 import { apiClient, getFriendlyError } from '@/lib/api-client'
 import { cn } from '@/lib/utils'
 
@@ -51,8 +50,8 @@ export default function RegisterPage() {
       return
     }
 
-    if (formData.password.length < 6) {
-      setError('Password must be at least 6 characters')
+    if (formData.password.length < 8) {
+      setError('Password must be at least 8 characters')
       setIsLoading(false)
       return
     }
@@ -74,7 +73,8 @@ export default function RegisterPage() {
         router.push('/verify')
       }, 3000)
     } catch (err: any) {
-      setError(getFriendlyError(err, 'Registration failed. Please try again.', 'register'))
+      const backendMsg = (err as any)?.response?.data?.message
+      setError(backendMsg || getFriendlyError(err, 'Registration failed. Please try again.', 'register'))
       setIsLoading(false)
     }
   }
@@ -91,8 +91,8 @@ export default function RegisterPage() {
             </div>
             <CardTitle className="text-2xl font-bold">Registration Successful!</CardTitle>
             <CardDescription>
-              Your account has been created and is pending admin approval.
-              You will receive an email once your account is verified.
+              Your account has been created. Complete your KYC verification to
+              activate your seller account and access the dashboard.
             </CardDescription>
           </CardHeader>
           <CardFooter>
@@ -122,7 +122,6 @@ export default function RegisterPage() {
           <CardTitle className="text-2xl font-bold tracking-tight">Create Account</CardTitle>
           <CardDescription>
             Register as a seller and start selling
-            <Badge variant="warning" className="ml-2">Admin Approval Required</Badge>
           </CardDescription>
         </CardHeader>
 
@@ -176,7 +175,7 @@ export default function RegisterPage() {
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   required
-                  minLength={6}
+                  minLength={8}
                   disabled={isLoading}
                 />
                 <button
@@ -188,7 +187,7 @@ export default function RegisterPage() {
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
-              <p className="text-xs text-muted-foreground">Must be at least 6 characters</p>
+              <p className="text-xs text-muted-foreground">Must be at least 8 characters</p>
             </div>
 
             <div className="space-y-2">
@@ -243,7 +242,7 @@ export default function RegisterPage() {
 
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <AlertCircle className="h-3 w-3" />
-              <span>All sellers must be verified by admin before accessing the dashboard</span>
+              <span>KYC verification is required before you can access the seller dashboard</span>
             </div>
           </CardFooter>
         </form>

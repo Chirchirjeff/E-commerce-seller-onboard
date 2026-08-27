@@ -21,8 +21,10 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Plus } from 'lucide-react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
 export default function DashboardPage() {
+  const router = useRouter()
   const { data: stats, isLoading: statsLoading } = useShopStats()
   const { data: recentOrders, isLoading: ordersLoading } = useRecentOrders(5)
 
@@ -106,7 +108,7 @@ export default function DashboardPage() {
           columns={[
             { key: 'id', label: 'Order ID', className: 'font-mono text-sm' },
             { key: 'customer', label: 'Customer' },
-            { key: 'amount', label: 'Amount', render: (value) => `Ksh ${value?.toFixed(2)}` },
+            { key: 'amount', label: 'Amount', render: (value) => `Ksh ${Number(value ?? 0).toFixed(2)}` },
             { key: 'status', label: 'Status', render: (value) => {
               const colors: Record<string, any> = {
                 pending: 'warning',
@@ -120,6 +122,7 @@ export default function DashboardPage() {
             }},
             { key: 'date', label: 'Date' },
           ]}
+          onEdit={(row) => router.push(`/orders/${row.id}`)}
         />
       </div>
     </>
