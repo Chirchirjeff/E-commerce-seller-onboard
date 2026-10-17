@@ -25,6 +25,10 @@ import {
 import { useShop } from '@/hooks/use-shop'
 import { useShopLinks } from '@/hooks/use-shop-links'
 
+// All shared seller links open in the buyer storefront. The token after this
+// common origin uniquely identifies the seller's shop.
+const BUYER_WEBAPP_URL = process.env.NEXT_PUBLIC_WEBAPP_URL || 'http://localhost:3000'
+
 export default function ShopLinksManager() {
   const { data: shop } = useShop()
   const {
@@ -51,15 +55,14 @@ export default function ShopLinksManager() {
   }
 
   const handleCopyLink = (token: string, type: 'token' | 'username' = 'token') => {
-    const webappUrl = process.env.NEXT_PUBLIC_WEBAPP_URL || 'http://localhost:3001'
     let url: string
     
     if (type === 'token') {
       // Direct token-based link to buyer webapp storefront
-      url = `${webappUrl}/${token}`
+      url = `${BUYER_WEBAPP_URL}/${token}`
     } else {
       // Use shop slug for username-based link
-      url = `${webappUrl}/${shop?.slug || token}`
+      url = `${BUYER_WEBAPP_URL}/${shop?.slug || token}`
     }
     
     navigator.clipboard.writeText(url)
@@ -169,8 +172,7 @@ export default function ShopLinksManager() {
                   <p className="text-xs text-muted-foreground mb-1">Your shop link:</p>
                   <code className="text-sm font-mono bg-muted p-2 rounded block truncate">
                     {(() => {
-                      const webappUrl = process.env.NEXT_PUBLIC_WEBAPP_URL || 'http://localhost:3000'
-                      return `${webappUrl}/${link.token}`
+                      return `${BUYER_WEBAPP_URL}/${link.token}`
                     })()}
                   </code>
                   <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
@@ -212,8 +214,7 @@ export default function ShopLinksManager() {
                       <DropdownMenuItem
                         className="text-blue-600 cursor-pointer"
                         onClick={() => {
-                          const webappUrl = process.env.NEXT_PUBLIC_WEBAPP_URL || 'http://localhost:3000'
-                          const url = `${webappUrl}/${link.token}`
+                          const url = `${BUYER_WEBAPP_URL}/${link.token}`
                           window.open(url, '_blank')
                         }}
                       >

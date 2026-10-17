@@ -15,6 +15,7 @@ import {
   Plus,
   X,
   Tag,
+  Layers,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
@@ -22,6 +23,7 @@ const routes = [
   { label: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' },
   { label: 'My Shop', icon: Store, href: '/shop' },
   { label: 'Products', icon: Package, href: '/products' },
+  { label: 'Collections', icon: Layers, href: '/collections' },
   { label: 'Categories', icon: Tag, href: '/categories' },
   { label: 'Orders', icon: ShoppingCart, href: '/orders' },
   { label: 'Analytics', icon: TrendingUp, href: '/analytics' },

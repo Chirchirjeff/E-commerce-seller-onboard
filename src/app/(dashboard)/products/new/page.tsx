@@ -16,6 +16,10 @@ import { useCreateProduct } from '@/hooks/use-products'
 import { useCategories } from '@/hooks/use-shop'
 import { apiClient } from '@/lib/api-client'
 import { Loader2, Upload, X, ImagePlus } from 'lucide-react'
+import { RichDescriptionEditor, type DescriptionBlock } from '@/components/products/RichDescriptionEditor'
+
+// Description mode: 'plain' = textarea, 'rich' = block editor (text + tables + images)
+type DescriptionMode = 'plain' | 'rich'
 
 const MAX_IMAGES = 10
 
@@ -35,7 +39,12 @@ export default function NewProductPage() {
     price: '',
     stockQuantity: '',
     marketplaceCategoryId: '',
+    salePrice: '',
   })
+
+  // Description mode: 'plain' (simple textarea) or 'rich' (block editor)
+  const [descriptionMode, setDescriptionMode] = React.useState<DescriptionMode>('plain')
+  const [descriptionBlocks, setDescriptionBlocks] = React.useState<DescriptionBlock[]>([])
 
   // Each entry: { previewUrl: string (local blob), remoteUrl: string | null }
   const [images, setImages] = React.useState<
@@ -135,14 +144,27 @@ export default function NewProductPage() {
     setIsLoading(true)
     try {
       const imageUrls = images.map((img) => img.remoteUrl as string)
+
+      // Parse optional sale price
+      const parsedSalePrice = formData.salePrice.trim()
+        ? parseFloat(formData.salePrice)
+        : undefined
+      if (parsedSalePrice !== undefined && (isNaN(parsedSalePrice) || parsedSalePrice < 0)) {
+        setSubmitError('Please enter a valid sale price.')
+        setIsLoading(false)
+        return
+      }
+
       await createProduct.mutateAsync({
         name: formData.name,
-        description: formData.description || undefined,
+        description: descriptionMode === 'plain' ? (formData.description || undefined) : undefined,
+        descriptionBlocks: descriptionMode === 'rich' && descriptionBlocks.length > 0
+          ? descriptionBlocks
+          : undefined,
         price: parsedPrice,
+        salePrice: parsedSalePrice,
         stockQuantity: parsedStock,
-        // Send marketplaceCategoryId (required field for backend)
         marketplaceCategoryId: formData.marketplaceCategoryId || undefined,
-        // First image becomes the thumbnail; all go into imageUrls for the gallery
         thumbnailUrl: imageUrls[0] ?? undefined,
         imageUrls: imageUrls.length > 0 ? imageUrls : undefined,
       })
@@ -206,19 +228,46 @@ export default function NewProductPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="description">Description</Label>
-                  <textarea
-                    id="description"
-                    className="flex min-h-[120px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    placeholder="Describe your product..."
-                  />
+                  <div className="flex items-center justify-between">
+                    <Label>Description</Label>
+                    <div className="flex rounded-md border overflow-hidden text-xs">
+                      <button
+                        type="button"
+                        onClick={() => setDescriptionMode('plain')}
+                        className={`px-3 py-1 transition-colors ${descriptionMode === 'plain' ? 'bg-primary text-primary-foreground' : 'hover:bg-accent'}`}
+                      >
+                        Plain Text
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setDescriptionMode('rich')}
+                        className={`px-3 py-1 transition-colors ${descriptionMode === 'rich' ? 'bg-primary text-primary-foreground' : 'hover:bg-accent'}`}
+                      >
+                        Rich (Tables &amp; Images)
+                      </button>
+                    </div>
+                  </div>
+
+                  {descriptionMode === 'plain' ? (
+                    <textarea
+                      id="description"
+                      className="flex min-h-[120px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                      value={formData.description}
+                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                      placeholder="Describe your product…"
+                    />
+                  ) : (
+                    <RichDescriptionEditor
+                      value={descriptionBlocks}
+                      onChange={setDescriptionBlocks}
+                      legacyDescription={formData.description}
+                    />
+                  )}
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
-                    <Label htmlFor="price">Price *</Label>
+                    <Label htmlFor="price">Price (KES) *</Label>
                     <Input
                       id="price"
                       type="number"
@@ -241,6 +290,24 @@ export default function NewProductPage() {
                       placeholder="0"
                     />
                   </div>
+                </div>
+
+                {/* Sale price — optional discount */}
+                <div className="space-y-2">
+                  <Label htmlFor="salePrice">
+                    Sale / Offer Price (KES){' '}
+                    <span className="text-xs text-muted-foreground font-normal">
+                      — optional. The original price will be shown crossed out.
+                    </span>
+                  </Label>
+                  <Input
+                    id="salePrice"
+                    type="number"
+                    step="0.01"
+                    value={formData.salePrice}
+                    onChange={(e) => setFormData({ ...formData, salePrice: e.target.value })}
+                    placeholder="Leave blank if no discount"
+                  />
                 </div>
 
                 <div className="space-y-2">

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Loader2 } from 'lucide-react'
 import { apiClient } from '@/lib/api-client'
 import { MainLayout } from '@/components/layout/main-layout'
+import { NotificationProvider } from '@/context/notifications'
 
 // How long the cached KYC status is trusted before we re-validate with the API.
 // 5 minutes is generous — status changes are driven by admin review, not
@@ -104,5 +105,9 @@ export default function DashboardLayout({
   // Render nothing while the redirect is in flight
   if (state === 'denied') return null
 
-  return <MainLayout>{children}</MainLayout>
+  return (
+    <NotificationProvider>
+      <MainLayout>{children}</MainLayout>
+    </NotificationProvider>
+  )
 }

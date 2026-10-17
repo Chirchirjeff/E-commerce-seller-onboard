@@ -51,3 +51,20 @@ export function useDeleteProduct() {
     },
   })
 }
+
+/**
+ * Check whether a product can be deleted (no buyer actions in the last 90 days).
+ * Returns { canDelete: boolean; reason?: string }.
+ * Only enabled when an id is provided.
+ */
+export function useCanDeleteProduct(id?: string) {
+  return useQuery<{ canDelete: boolean; reason?: string }>({
+    queryKey: ['can-delete-product', id],
+    queryFn: async () => {
+      const { data } = await apiClient.get(`/products/${id}/can-delete`)
+      return data
+    },
+    enabled: !!id,
+    staleTime: 1000 * 60 * 5,
+  })
+}

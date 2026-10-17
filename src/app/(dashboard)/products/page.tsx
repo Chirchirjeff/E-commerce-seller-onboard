@@ -15,7 +15,8 @@ import { DataTable } from '@/components/shared/data-table'
 import { ProductEditModal } from '@/components/products/ProductEditModal'
 import { useProducts, useDeleteProduct } from '@/hooks/use-products'
 import { formatCurrency } from '@/lib/utils'
-import { Package, Plus, Filter, Download, Eye, Pencil, Trash2 } from 'lucide-react'
+import { Package, Plus, Filter, Download, Eye, Pencil, Trash2, Lock } from 'lucide-react'
+import { useCanDeleteProduct } from '@/hooks/use-products'
 
 // Low stock threshold — items at or below this are flagged as low stock
 const LOW_STOCK_THRESHOLD = 5
@@ -42,6 +43,8 @@ export default function ProductsPage() {
     setProductToDelete(product)
     setIsDeleteDialogOpen(true)
   }
+
+  const { data: deleteCheck } = useCanDeleteProduct(productToDelete?.id)
 
   const confirmDelete = async () => {
     if (!productToDelete?.id) return
@@ -121,6 +124,11 @@ export default function ProductsPage() {
           { key: 'name', label: 'Product Name' },
           { key: 'marketplaceCategory', label: 'Category', render: (value) => value?.name || 'Uncategorized' },
           { key: 'price', label: 'Price', render: (value) => formatCurrency(value) },
+          {
+            key: 'salePrice',
+            label: 'Sale Price',
+            render: (value) => value != null ? formatCurrency(value) : <span className="text-muted-foreground text-xs">—</span>,
+          },
           { key: 'stockQuantity', label: 'Stock' },
           {
             key: 'status',
@@ -141,6 +149,23 @@ export default function ProductsPage() {
               return <Badge variant={colors[status]}>{labels[status]}</Badge>
             },
           },
+          {
+            key: 'reviewCount',
+            label: 'Protection',
+            render: (_value, row) => {
+              // A product is likely protected if it has reviews or sales.
+              // The definitive check happens in the delete dialog via the API.
+              const hasActivity = (row.reviewCount ?? 0) > 0
+              return hasActivity ? (
+                <span className="inline-flex items-center gap-1 text-xs text-amber-600 font-medium">
+                  <Lock className="h-3.5 w-3.5" />
+                  Protected
+                </span>
+              ) : (
+                <span className="text-xs text-muted-foreground">—</span>
+              )
+            },
+          },
         ]}
       />
 
@@ -154,26 +179,50 @@ export default function ProductsPage() {
       {/* Delete Confirmation Dialog */}
       {isDeleteDialogOpen && productToDelete && (
         <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center">
-          <div className="bg-white rounded-lg p-6 max-w-sm mx-auto shadow-lg">
+          <div className="bg-white rounded-lg p-6 max-w-sm mx-auto shadow-lg dark:bg-slate-900">
             <h2 className="text-lg font-semibold mb-2">Delete Product</h2>
-            <p className="text-muted-foreground mb-4">
-              Are you sure you want to delete <strong>{productToDelete.name}</strong>? This action cannot be undone.
-            </p>
-            <div className="flex gap-3 justify-end">
-              <Button
-                variant="outline"
-                onClick={() => setIsDeleteDialogOpen(false)}
-              >
-                Cancel
-              </Button>
-              <Button
-                variant="destructive"
-                onClick={confirmDelete}
-                disabled={deleteProduct.isPending}
-              >
-                {deleteProduct.isPending ? 'Deleting...' : 'Delete'}
-              </Button>
-            </div>
+
+            {deleteCheck?.canDelete === false ? (
+              /* Protected product — cannot be deleted */
+              <>
+                <div className="flex items-start gap-3 rounded-lg bg-amber-50 border border-amber-200 p-3 mb-4 dark:bg-amber-900/20 dark:border-amber-800">
+                  <Lock className="h-5 w-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-sm font-semibold text-amber-700 dark:text-amber-400">
+                      Protected — cannot delete
+                    </p>
+                    <p className="text-xs text-amber-600 dark:text-amber-500 mt-1">
+                      {deleteCheck.reason ?? 'This product has recent buyer activity (purchases or reviews) within the last 90 days.'}
+                      {' '}This policy protects buyers who may still need to leave reviews or raise disputes.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex justify-end">
+                  <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
+                    Close
+                  </Button>
+                </div>
+              </>
+            ) : (
+              /* Safe to delete */
+              <>
+                <p className="text-muted-foreground mb-4">
+                  Are you sure you want to delete <strong>{productToDelete.name}</strong>? This action cannot be undone.
+                </p>
+                <div className="flex gap-3 justify-end">
+                  <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    onClick={confirmDelete}
+                    disabled={deleteProduct.isPending || deleteCheck === undefined}
+                  >
+                    {deleteProduct.isPending ? 'Deleting...' : 'Delete'}
+                  </Button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}
