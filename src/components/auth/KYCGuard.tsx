@@ -16,7 +16,8 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Loader2 } from 'lucide-react'
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { Skeleton, SkeletonGroup } from '@/components/ui/skeleton'
 import { apiClient } from '@/lib/api-client'
 
 interface KYCGuardProps {
@@ -76,11 +77,22 @@ export function KYCGuard({ children, expectedStatus }: KYCGuardProps) {
   }, [router, expectedStatus])
 
   if (isLoading) {
+    // Card-shaped placeholder that fits the centred (auth) layout
     return (
-      <div className="flex h-screen items-center justify-center gap-3 text-muted-foreground">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <span className="text-sm">Verifying your account…</span>
-      </div>
+      <SkeletonGroup label="Verifying your account…">
+        <Card aria-hidden="true">
+          <CardHeader className="items-center space-y-3 text-center">
+            <Skeleton className="h-14 w-14 rounded-full" />
+            <Skeleton className="h-6 w-48" />
+            <Skeleton className="h-4 w-64 max-w-full" />
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-5/6" />
+            <Skeleton className="h-10 w-full" />
+          </CardContent>
+        </Card>
+      </SkeletonGroup>
     )
   }
 

@@ -2,7 +2,8 @@
 
 import * as React from 'react'
 import { useRouter } from 'next/navigation'
-import { Loader2 } from 'lucide-react'
+import { Skeleton, SkeletonGroup } from '@/components/ui/skeleton'
+import { PageHeaderSkeleton, StatCardSkeleton } from '@/components/shared/skeletons'
 import { apiClient } from '@/lib/api-client'
 import { MainLayout } from '@/components/layout/main-layout'
 import { NotificationProvider } from '@/context/notifications'
@@ -92,13 +93,34 @@ export default function DashboardLayout({
     return () => { cancelled = true }
   }, [router])
 
-  // Show spinner while checking — never flash the dashboard
+  // Show a shell skeleton while checking — never flash the real dashboard
   if (state === 'checking') {
     return (
-      <div className="flex h-screen items-center justify-center gap-3 text-muted-foreground">
-        <Loader2 className="h-6 w-6 animate-spin text-primary" />
-        <span className="text-sm">Loading your dashboard…</span>
-      </div>
+      <SkeletonGroup label="Loading your dashboard…" className="flex min-h-screen bg-background">
+        {/* Sidebar placeholder (desktop only, mirrors MainLayout) */}
+        <div className="hidden w-64 shrink-0 flex-col gap-2 border-r bg-card p-4 lg:flex" aria-hidden="true">
+          <Skeleton className="mb-6 h-8 w-32" />
+          {Array.from({ length: 8 }).map((_, i) => (
+            <Skeleton key={i} className="h-9 w-full" />
+          ))}
+        </div>
+        <div className="flex flex-1 flex-col" aria-hidden="true">
+          <div className="flex h-16 items-center justify-between border-b px-4 md:px-6">
+            <Skeleton className="h-8 w-48" />
+            <Skeleton className="h-8 w-8 rounded-full" />
+          </div>
+          {/* Route-agnostic content placeholder */}
+          <div className="flex-1 space-y-6 p-4 md:p-6">
+            <PageHeaderSkeleton action />
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <StatCardSkeleton key={i} />
+              ))}
+            </div>
+            <Skeleton className="h-80 w-full rounded-lg" />
+          </div>
+        </div>
+      </SkeletonGroup>
     )
   }
 

@@ -15,7 +15,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import ImageUploadField from '@/components/ui/image-upload-field'
-import { RichDescriptionEditor, type DescriptionBlock } from '@/components/products/RichDescriptionEditor'
+import { RichDescriptionEditor, type DescriptionBlock } from '@/components/products/LazyRichDescriptionEditor'
 import { useUpdateProduct } from '@/hooks/use-products'
 
 type DescriptionMode = 'plain' | 'rich'

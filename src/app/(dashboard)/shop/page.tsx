@@ -1,6 +1,7 @@
 'use client'
 
 import * as React from 'react'
+import dynamic from 'next/dynamic'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -10,7 +11,13 @@ import { useShop, useUpdateShop } from '@/hooks/use-shop'
 import { Store, Loader2, CheckCircle2 } from 'lucide-react'
 import ImageUploadField from '@/components/ui/image-upload-field'
 import ShopLinksManager from '@/components/shop/ShopLinksManager'
-import ShopLinksAnalytics from '@/components/shop/ShopLinksAnalytics'
+import { ShopLinksAnalyticsSkeleton, ShopSkeleton } from '@/components/shared/page-skeletons'
+
+// recharts-heavy and below the fold: split into its own client-only chunk.
+const ShopLinksAnalytics = dynamic(() => import('@/components/shop/ShopLinksAnalytics'), {
+  ssr: false,
+  loading: () => <ShopLinksAnalyticsSkeleton />,
+})
 
 export default function ShopPage() {
   const { data: shop, isLoading } = useShop()
@@ -49,14 +56,7 @@ export default function ShopPage() {
   }
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-96">
-        <div className="text-center">
-          <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto" />
-          <p className="mt-4 text-muted-foreground">Loading shop details...</p>
-        </div>
-      </div>
-    )
+    return <ShopSkeleton />
   }
 
   if (!shop) {
@@ -144,6 +144,7 @@ export default function ShopPage() {
                           <img 
                             src={formData.businessLogo} 
                             alt="Shop logo" 
+                            decoding="async"
                             className="h-full w-full object-cover"
                             crossOrigin="anonymous"
                             onError={(e) => {
@@ -164,6 +165,8 @@ export default function ShopPage() {
                           <img 
                             src={formData.coverPhoto} 
                             alt="Shop cover" 
+                            loading="lazy"
+                            decoding="async"
                             className="h-full w-full object-cover"
                             crossOrigin="anonymous"
                             onError={(e) => {

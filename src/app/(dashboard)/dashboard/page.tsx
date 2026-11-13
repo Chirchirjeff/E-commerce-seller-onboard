@@ -6,8 +6,11 @@
 'use client'
 
 import { KPICard } from '@/components/shared/kpi-card'
-import { RevenueChart } from '@/components/charts/revenue-chart'
-import { OrderStatusChart } from '@/components/charts/order-status-chart'
+// Client-only, code-split recharts trend chart; the rest is light HTML
+import { LazyTrendChart } from '@/components/charts/lazy'
+import { ChartCard, StatusBreakdown, formatCount, formatKsh, percentChange } from '@/components/charts/chart-kit'
+import { Skeleton, SkeletonGroup } from '@/components/ui/skeleton'
+import { useSellerAnalytics } from '@/hooks/use-analytics'
 import { DataTable } from '@/components/shared/data-table'
 import { useShopStats, useRecentOrders } from '@/hooks/use-shop'
 import {
@@ -27,6 +30,7 @@ export default function DashboardPage() {
   const router = useRouter()
   const { data: stats, isLoading: statsLoading } = useShopStats()
   const { data: recentOrders, isLoading: ordersLoading } = useRecentOrders(5)
+  const { data: analytics, isLoading: analyticsLoading } = useSellerAnalytics(30)
 
   return (
     <>
@@ -88,14 +92,44 @@ export default function DashboardPage() {
         />
       </div>
 
-      {/* Charts */}
-      <div className="mt-6 grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2">
-          <RevenueChart isLoading={statsLoading} />
-        </div>
-        <div className="lg:col-span-1">
-          <OrderStatusChart isLoading={statsLoading} />
-        </div>
+      {/* Charts — min-w-0 lets each grid cell shrink so charts fit any screen */}
+      <div className="mt-6 grid min-w-0 gap-6 xl:grid-cols-3">
+        <ChartCard
+          title="Sales, last 30 days"
+          subtitle="Cancelled orders excluded"
+          className="xl:col-span-2"
+          actions={<Link href="/analytics" className="text-sm font-medium text-primary hover:underline">Full analytics</Link>}
+        >
+          {analyticsLoading ? (
+            <SkeletonGroup label="Loading sales chart…" className="space-y-4">
+              <Skeleton className="h-9 w-40" />
+              <Skeleton className="h-[220px] w-full sm:h-[280px]" />
+            </SkeletonGroup>
+          ) : (
+            <LazyTrendChart
+              data={analytics?.series ?? []}
+              metrics={[
+                { key: 'revenue', label: 'Revenue', money: true, format: (v) => formatKsh(v) },
+                { key: 'orders', label: 'Orders', format: (v) => formatCount(v) },
+              ]}
+              summary={analytics ? {
+                revenue: { value: analytics.current.revenue, change: percentChange(analytics.current.revenue, analytics.previous.revenue) },
+                orders: { value: analytics.current.orders, change: percentChange(analytics.current.orders, analytics.previous.orders) },
+              } : undefined}
+            />
+          )}
+        </ChartCard>
+        <ChartCard title="Order status" subtitle="Orders placed in the last 30 days">
+          {analyticsLoading ? (
+            <SkeletonGroup label="Loading order status…" className="space-y-4">
+              <Skeleton className="h-9 w-20" />
+              <Skeleton className="h-3 w-full rounded-full" />
+              <Skeleton className="h-20 w-full" />
+            </SkeletonGroup>
+          ) : (
+            <StatusBreakdown data={analytics?.statusDistribution ?? []} />
+          )}
+        </ChartCard>
       </div>
 
       {/* Recent Orders */}

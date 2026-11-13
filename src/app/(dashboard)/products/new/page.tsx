@@ -16,7 +16,7 @@ import { useCreateProduct } from '@/hooks/use-products'
 import { useCategories } from '@/hooks/use-shop'
 import { apiClient } from '@/lib/api-client'
 import { Loader2, Upload, X, ImagePlus } from 'lucide-react'
-import { RichDescriptionEditor, type DescriptionBlock } from '@/components/products/RichDescriptionEditor'
+import { RichDescriptionEditor, type DescriptionBlock } from '@/components/products/LazyRichDescriptionEditor'
 
 // Description mode: 'plain' = textarea, 'rich' = block editor (text + tables + images)
 type DescriptionMode = 'plain' | 'rich'
@@ -354,6 +354,8 @@ export default function NewProductPage() {
                         <img
                           src={img.previewUrl}
                           alt={`Product image ${idx + 1}`}
+                          loading="lazy"
+                          decoding="async"
                           className="w-full h-full object-cover"
                         />
                         {/* Uploading spinner overlay */}

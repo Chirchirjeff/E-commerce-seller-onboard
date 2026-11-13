@@ -11,8 +11,16 @@ import Link from 'next/link'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import dynamic from 'next/dynamic'
 import { DataTable } from '@/components/shared/data-table'
-import { ProductEditModal } from '@/components/products/ProductEditModal'
+import { Skeleton } from '@/components/ui/skeleton'
+
+// Heavy dialog (form + rich editor) that only opens on user action — load its
+// chunk on demand. No fallback: it renders nothing until opened anyway.
+const ProductEditModal = dynamic(
+  () => import('@/components/products/ProductEditModal').then((m) => m.ProductEditModal),
+  { ssr: false }
+)
 import { useProducts, useDeleteProduct } from '@/hooks/use-products'
 import { formatCurrency } from '@/lib/utils'
 import { Package, Plus, Filter, Download, Eye, Pencil, Trash2, Lock } from 'lucide-react'
@@ -79,7 +87,7 @@ export default function ProductsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Total Products</p>
-                <p className="text-2xl font-bold">{isLoading ? '—' : (products?.length ?? 0)}</p>
+                {isLoading ? <Skeleton className="mt-1 h-8 w-12" /> : <p className="text-2xl font-bold">{(products?.length ?? 0)}</p>}
               </div>
               <div className="rounded-lg bg-purple-500/10 p-3 text-purple-500">
                 <Package className="h-5 w-5" />
@@ -91,7 +99,7 @@ export default function ProductsPage() {
           <CardContent className="p-4">
             <div>
               <p className="text-sm text-muted-foreground">In Stock</p>
-              <p className="text-2xl font-bold text-green-500">{isLoading ? '—' : inStock}</p>
+              {isLoading ? <Skeleton className="mt-1 h-8 w-12" /> : <p className="text-2xl font-bold text-green-500">{inStock}</p>}
             </div>
           </CardContent>
         </Card>
@@ -99,7 +107,7 @@ export default function ProductsPage() {
           <CardContent className="p-4">
             <div>
               <p className="text-sm text-muted-foreground">Low Stock</p>
-              <p className="text-2xl font-bold text-yellow-500">{isLoading ? '—' : lowStock}</p>
+              {isLoading ? <Skeleton className="mt-1 h-8 w-12" /> : <p className="text-2xl font-bold text-yellow-500">{lowStock}</p>}
             </div>
           </CardContent>
         </Card>
@@ -107,7 +115,7 @@ export default function ProductsPage() {
           <CardContent className="p-4">
             <div>
               <p className="text-sm text-muted-foreground">Out of Stock</p>
-              <p className="text-2xl font-bold text-red-500">{isLoading ? '—' : outOfStock}</p>
+              {isLoading ? <Skeleton className="mt-1 h-8 w-12" /> : <p className="text-2xl font-bold text-red-500">{outOfStock}</p>}
             </div>
           </CardContent>
         </Card>
@@ -170,11 +178,14 @@ export default function ProductsPage() {
       />
 
       {/* Edit Modal */}
-      <ProductEditModal
-        open={isEditModalOpen}
-        onOpenChange={setIsEditModalOpen}
-        product={editingProduct}
-      />
+      {/* Mounted once a product has been picked for editing (lazy chunk) */}
+      {editingProduct && (
+        <ProductEditModal
+          open={isEditModalOpen}
+          onOpenChange={setIsEditModalOpen}
+          product={editingProduct}
+        />
+      )}
 
       {/* Delete Confirmation Dialog */}
       {isDeleteDialogOpen && productToDelete && (

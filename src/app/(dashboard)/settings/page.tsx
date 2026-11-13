@@ -5,8 +5,8 @@
  *
  * Two tabs:
  *   • Appearance   — light/dark/system + accent colour (existing logic unchanged)
- *   • Account      — seller personal info fetched from /auth/me + KYC summary
- *                    from /seller/kyc-status; all read-only (fields are KYC-verified)
+ *   • Account      — seller details with verified change requests
+ *                    (ProfileChangeSection) + KYC status from /seller/kyc-status
  */
 
 import * as React from 'react'
@@ -17,16 +17,10 @@ import {
   Monitor,
   Check,
   Palette,
-  User,
-  Mail,
-  Phone,
-  Building2,
   FileText,
   ShieldCheck,
-  Loader2,
   AlertCircle,
   RefreshCw,
-  CalendarDays,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -34,6 +28,8 @@ import { Button } from '@/components/ui/button'
 import { useAccentTheme, type AccentName } from '@/hooks/use-accent-theme'
 import { apiClient, getFriendlyError } from '@/lib/api-client'
 import { formatDate } from '@/lib/utils'
+import { ProfileChangeSection } from '@/components/settings/ProfileChangeSection'
+import { AccountDetailsSkeleton, SettingsSkeleton } from '@/components/shared/page-skeletons'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -86,12 +82,7 @@ export default function SettingsPage() {
   const { accent, setAccent, mounted, palettes } = useAccentTheme()
 
   if (!mounted) {
-    return (
-      <div className="space-y-6">
-        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Settings</h1>
-        <div className="h-64 animate-pulse rounded-xl bg-muted" />
-      </div>
-    )
+    return <SettingsSkeleton />
   }
 
   const isDark = resolvedTheme === 'dark'
@@ -297,11 +288,7 @@ function AccountTab() {
   React.useEffect(() => { load() }, [load])
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center py-16">
-        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-      </div>
-    )
+    return <AccountDetailsSkeleton />
   }
 
   if (error) {
@@ -320,47 +307,8 @@ function AccountTab() {
   return (
     <div className="space-y-6">
 
-      {/* Personal info card */}
-      <Card>
-        <CardHeader className="pb-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
-              <User className="h-4 w-4" />
-            </div>
-            <div>
-              <CardTitle className="text-base">Personal Information</CardTitle>
-              <p className="mt-0.5 text-sm text-muted-foreground">
-                Your account details as registered.
-              </p>
-            </div>
-          </div>
-        </CardHeader>
-
-        <CardContent>
-          <dl className="divide-y">
-            <InfoRow
-              icon={<User className="h-4 w-4" />}
-              label="Full name"
-              value={profile?.name}
-            />
-            <InfoRow
-              icon={<Mail className="h-4 w-4" />}
-              label="Email address"
-              value={profile?.email}
-            />
-            <InfoRow
-              icon={<Phone className="h-4 w-4" />}
-              label="Phone number"
-              value={profile?.phone || '—'}
-            />
-            <InfoRow
-              icon={<CalendarDays className="h-4 w-4" />}
-              label="Member since"
-              value={profile?.createdAt ? formatDate(profile.createdAt) : '—'}
-            />
-          </dl>
-        </CardContent>
-      </Card>
+      {/* Account + business details, with verified change requests */}
+      <ProfileChangeSection memberSince={profile?.createdAt} onChanged={load} />
 
       {/* KYC / Business verification card */}
       <Card>
@@ -372,7 +320,7 @@ function AccountTab() {
             <div>
               <CardTitle className="text-base">Business Verification</CardTitle>
               <p className="mt-0.5 text-sm text-muted-foreground">
-                Details submitted during seller verification (KYC). Contact support to update these.
+                Status of your seller verification (KYC).
               </p>
             </div>
           </div>
@@ -384,11 +332,6 @@ function AccountTab() {
           </div>
 
           <dl className="divide-y">
-            <InfoRow
-              icon={<Building2 className="h-4 w-4" />}
-              label="Business name"
-              value={kyc?.businessName}
-            />
             <InfoRow
               icon={<FileText className="h-4 w-4" />}
               label="Submitted"
@@ -404,8 +347,8 @@ function AccountTab() {
           </dl>
 
           <p className="mt-4 rounded-lg bg-muted/60 px-3 py-2.5 text-xs text-muted-foreground">
-            These details were verified by the Quza team. To request a change, please contact
-            support at <span className="font-medium text-foreground">support@quza.com</span>.
+            To change a verified business detail, use <span className="font-medium text-foreground">Request change</span> under
+            Business details above. The Quza team reviews each request and emails you the outcome.
           </p>
         </CardContent>
       </Card>

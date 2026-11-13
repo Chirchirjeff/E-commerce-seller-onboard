@@ -1,41 +1,40 @@
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, keepPreviousData } from '@tanstack/react-query'
 import { apiClient } from '@/lib/api-client'
 
-export function useShopAnalytics() {
-  return useQuery({
-    queryKey: ['analytics', 'shop'],
-    queryFn: async () => {
-      // First get the seller's shop
-      const { data: shops } = await apiClient.get('/shops/me')
-      const shopArray = Array.isArray(shops) ? shops : (shops ? [shops] : [])
-      const shop = shopArray[0]
-      
-      if (!shop?.id) return null
+export type AnalyticsRange = 7 | 30 | 90 | 365
 
-      // Then get the stats for that shop
-      const { data: stats } = await apiClient.get(`/shops/${shop.id}/stats`)
-      
-      // Map backend response to what the analytics page expects
-      return {
-        totalRevenue: stats.totalRevenue || 0,
-        totalOrders: stats.totalOrders || 0,
-        totalProducts: stats.totalProducts || 0,
-        totalCustomers: stats.totalCustomers || 0,
-        conversionRate: 0, // Could be calculated as (totalOrders / totalCustomers * 100) if needed
-        revenueData: [], // Revenue time series - not yet implemented
-        performanceData: stats.orderStatusDistribution || [], // Order status breakdown
-      }
-    },
-  })
+export interface PeriodTotals {
+  revenue: number
+  orders: number
+  customers: number
+  averageOrderValue: number
 }
 
-export function useRevenueAnalytics(range: string = '30d') {
+export interface SellerAnalytics {
+  shop: { id: string; name: string }
+  range: { days: number; start: string; end: string }
+  current: PeriodTotals
+  previous: PeriodTotals
+  series: Array<{ date: string; revenue: number; orders: number }>
+  statusDistribution: Array<{ name: string; value: number }>
+  topProducts: Array<{ productId: string; name: string; thumbnailUrl: string | null; revenue: number; quantity: number }>
+  totalProducts: number
+  averageRating: number
+  reviewCount: number
+}
+
+/**
+ * The signed-in seller's analytics for the last `days` days, compared with
+ * the period before. Resolves to null when the seller has no shop yet.
+ * Keeps the previous range on screen while a new range loads (no flash).
+ */
+export function useSellerAnalytics(days: AnalyticsRange = 30) {
   return useQuery({
-    queryKey: ['analytics', 'revenue', range],
+    queryKey: ['analytics', 'seller', days],
     queryFn: async () => {
-      // This endpoint doesn't exist for sellers - would need to be implemented
-      // For now return empty data
-      return []
+      const { data } = await apiClient.get<SellerAnalytics | null>('/analytics/seller', { params: { days } })
+      return data || null
     },
+    placeholderData: keepPreviousData,
   })
 }

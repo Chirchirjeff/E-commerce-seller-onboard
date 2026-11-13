@@ -87,6 +87,8 @@ export default function ImageUploadField({
             <img 
               src={preview} 
               alt="Preview" 
+              loading="lazy"
+              decoding="async"
               className="h-full w-full object-cover"
               crossOrigin="anonymous"
               onError={(e) => {

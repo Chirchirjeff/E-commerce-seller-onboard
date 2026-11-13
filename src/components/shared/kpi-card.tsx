@@ -2,6 +2,7 @@
 
 import * as React from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
 import { ArrowDown, ArrowUp, LucideIcon } from 'lucide-react'
 
@@ -39,7 +40,10 @@ export function KPICard({
       </CardHeader>
       <CardContent>
         {isLoading ? (
-          <div className="h-8 w-24 animate-pulse rounded bg-muted" />
+          <>
+            <span role="status" className="sr-only">Loading…</span>
+            <Skeleton className="h-8 w-24" />
+          </>
         ) : (
           <div className="text-2xl font-bold">{value}</div>
         )}

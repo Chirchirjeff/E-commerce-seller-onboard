@@ -9,7 +9,8 @@ import * as React from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { useCategories } from '@/hooks/use-shop'
-import { Loader2, Layers, ChevronRight } from 'lucide-react'
+import { Layers, ChevronRight } from 'lucide-react'
+import { CategoryTreeSkeleton } from '@/components/shared/page-skeletons'
 import { cn } from '@/lib/utils'
 
 export default function CategoriesPage() {
@@ -111,9 +112,7 @@ export default function CategoriesPage() {
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-            </div>
+            <CategoryTreeSkeleton />
           ) : !categories || categories.length === 0 ? (
             <div className="flex flex-col items-center justify-center gap-2 py-12 text-center">
               <div className="rounded-full bg-muted p-4">

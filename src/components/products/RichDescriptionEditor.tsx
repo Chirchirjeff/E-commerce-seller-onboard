@@ -273,7 +273,7 @@ function ImageBlockEditor({ block, onUpdate }: { block: ImageBlock; onUpdate: (b
       {/* Preview */}
       {preview ? (
         <div className="relative rounded-lg overflow-hidden border bg-muted aspect-video max-h-48">
-          <img src={preview} alt="Description image" className="w-full h-full object-contain" />
+          <img src={preview} alt="Description image" loading="lazy" decoding="async" className="w-full h-full object-contain" />
           {uploading && (
             <div className="absolute inset-0 flex items-center justify-center bg-black/40">
               <Loader2 className="h-6 w-6 animate-spin text-white" />

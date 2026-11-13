@@ -52,6 +52,7 @@ import {
 } from '@/hooks/use-collections'
 import { useProducts } from '@/hooks/use-products'
 import { getFriendlyError } from '@/lib/api-client'
+import { CollectionDetailSkeleton, ProductRowsSkeleton } from '@/components/shared/page-skeletons'
 
 const money = new Intl.NumberFormat('en-KE', {
   style: 'currency',
@@ -114,12 +115,7 @@ export default function CollectionDetailPage() {
   // Loading / error states
   // ---------------------------------------------------------------------------
   if (loadingCollection) {
-    return (
-      <div className="flex min-h-[50vh] items-center justify-center gap-2 text-muted-foreground">
-        <Loader2 className="h-5 w-5 animate-spin" />
-        Loading collection…
-      </div>
-    )
+    return <CollectionDetailSkeleton />
   }
 
   if (collectionError || !collection) {
@@ -252,11 +248,7 @@ function AssignedTab({
 }) {
   if (isLoading) {
     return (
-      <div className="space-y-3">
-        {[1, 2, 3].map((i) => (
-          <div key={i} className="h-16 animate-pulse rounded-lg bg-muted" />
-        ))}
-      </div>
+      <ProductRowsSkeleton />
     )
   }
 
@@ -285,6 +277,8 @@ function AssignedTab({
               <img
                 src={cp.product.thumbnailUrl}
                 alt={cp.product.name}
+                loading="lazy"
+                decoding="async"
                 className="h-full w-full object-cover"
               />
             ) : (
@@ -391,9 +385,7 @@ function AddManualTab({
 
   if (isLoading) {
     return (
-      <div className="space-y-3">
-        {[1, 2, 3].map((i) => <div key={i} className="h-16 animate-pulse rounded-lg bg-muted" />)}
-      </div>
+      <ProductRowsSkeleton />
     )
   }
 
@@ -468,7 +460,7 @@ function AddManualTab({
               {/* Thumbnail */}
               <div className="h-12 w-12 shrink-0 overflow-hidden rounded-md bg-muted">
                 {p.thumbnailUrl ? (
-                  <img src={p.thumbnailUrl} alt={p.name} className="h-full w-full object-cover" />
+                  <img src={p.thumbnailUrl} alt={p.name} loading="lazy" decoding="async" className="h-full w-full object-cover" />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center">
                     <Package className="h-5 w-5 text-muted-foreground" />
@@ -1147,7 +1139,7 @@ function SuggestedProductList({
           {/* Thumbnail */}
           <div className="h-12 w-12 shrink-0 overflow-hidden rounded-md bg-muted">
             {p.thumbnailUrl ? (
-              <img src={p.thumbnailUrl} alt={p.name} className="h-full w-full object-cover" />
+              <img src={p.thumbnailUrl} alt={p.name} loading="lazy" decoding="async" className="h-full w-full object-cover" />
             ) : (
               <div className="flex h-full w-full items-center justify-center">
                 <Package className="h-5 w-5 text-muted-foreground" />

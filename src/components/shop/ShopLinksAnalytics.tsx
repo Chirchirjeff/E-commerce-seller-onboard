@@ -3,26 +3,13 @@
 import * as React from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import {
-  LineChart,
-  Line,
-  BarChart,
-  Bar,
-  PieChart,
-  Pie,
-  Cell,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from 'recharts'
-import { TrendingUp, Users, Globe, Smartphone } from 'lucide-react'
+import { TrendingUp, Users, Globe, Smartphone, Link2, MousePointerClick } from 'lucide-react'
+import { LazyTrendChart } from '@/components/charts/lazy'
+import { ChartCard, PartBreakdown, RankedBars, StatTile, VIZ, formatCount } from '@/components/charts/chart-kit'
 import { useShop } from '@/hooks/use-shop'
 import { useQuery } from '@tanstack/react-query'
 import { apiClient } from '@/lib/api-client'
-import { Loader2 } from 'lucide-react'
+import { ShopLinksAnalyticsSkeleton } from '@/components/shared/page-skeletons'
 
 interface LinkAnalyticsData {
   id: string
@@ -45,8 +32,10 @@ interface ShopLinksAnalyticsProps {
   shopId?: string
 }
 
-const DEVICE_COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444']
-const BROWSER_COLORS = ['#8b5cf6', '#ec4899', '#06b6d4', '#14b8a6']
+/** Fixed colour per device type, so a device keeps its colour everywhere. */
+const DEVICE_COLORS: Record<string, string> = {
+  mobile: VIZ.blue, desktop: VIZ.orange, tablet: VIZ.aqua, unknown: VIZ.neutral,
+}
 
 export default function ShopLinksAnalytics({ shopId }: ShopLinksAnalyticsProps) {
   const { data: shop } = useShop()
@@ -80,16 +69,7 @@ export default function ShopLinksAnalytics({ shopId }: ShopLinksAnalyticsProps) 
   }
 
   if (isLoading) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Analytics</CardTitle>
-        </CardHeader>
-        <CardContent className="flex items-center justify-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-        </CardContent>
-      </Card>
-    )
+    return <ShopLinksAnalyticsSkeleton />
   }
 
   if (!analytics || analytics.length === 0) {
@@ -158,212 +138,55 @@ export default function ShopLinksAnalytics({ shopId }: ShopLinksAnalyticsProps) 
     .map(([date, clicks]) => ({ date, clicks }))
     .sort((a, b) => a.date.localeCompare(b.date))
 
+  const activeLinks = analytics.filter((l) => l.isActive).length
+
   return (
-    <div className="space-y-6">
-      {/* Overview Cards */}
-      <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Clicks</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalClicks}</div>
-            <p className="text-xs text-muted-foreground">
-              Across all your links
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Unique Visitors</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalUniqueVisitors}</div>
-            <p className="text-xs text-muted-foreground">
-              Individual visitors
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Links</CardTitle>
-            <Badge variant="secondary" className="bg-green-100 text-green-800 border-0">
-              {analytics.filter((l) => l.isActive).length}
-            </Badge>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {analytics.filter((l) => l.isActive).length}/{analytics.length}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Links enabled
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Avg Clicks/Link</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {analytics.length > 0
-                ? Math.round(totalClicks / analytics.length)
-                : 0}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Per link average
-            </p>
-          </CardContent>
-        </Card>
+    <div className="min-w-0 space-y-6">
+      {/* Overview */}
+      <div className="grid min-w-0 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <StatTile label="Total clicks" icon={MousePointerClick} value={formatCount(totalClicks)} hint="Across all your links"
+          trend={clicksData.map((d) => d.clicks)} />
+        <StatTile label="Unique visitors" icon={Users} value={formatCount(totalUniqueVisitors)} hint="Individual people who opened a link" />
+        <StatTile label="Active links" icon={Link2} value={`${activeLinks}/${analytics.length}`} hint="Links currently enabled" />
+        <StatTile label="Average clicks per link" icon={TrendingUp}
+          value={formatCount(analytics.length ? Math.round(totalClicks / analytics.length) : 0)} hint="Per link" />
       </div>
 
-      {/* Clicks Over Time */}
+      {/* Clicks over time */}
       {clicksData.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Clicks Over Time</CardTitle>
-            <CardDescription>Daily click activity</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={clicksData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                <XAxis
-                  dataKey="date"
-                  stroke="#888"
-                  style={{ fontSize: '12px' }}
-                />
-                <YAxis stroke="#888" style={{ fontSize: '12px' }} />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: '#fff',
-                    border: '1px solid #e5e7eb',
-                    borderRadius: '6px',
-                  }}
-                />
-                <Legend />
-                <Line
-                  type="monotone"
-                  dataKey="clicks"
-                  stroke="#3b82f6"
-                  strokeWidth={2}
-                  dot={{ fill: '#3b82f6', r: 4 }}
-                  activeDot={{ r: 6 }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
+        <ChartCard title="Clicks over time" subtitle="Daily link clicks">
+          <LazyTrendChart
+            data={clicksData}
+            metrics={[{ key: 'clicks', label: 'Clicks', format: (v) => formatCount(v) }]}
+          />
+        </ChartCard>
       )}
 
-      {/* Device and Browser Distribution */}
-      <div className="grid gap-6 md:grid-cols-2">
-        {/* Device Distribution */}
+      {/* Devices, browsers and countries — min-w-0 cells so they fit any width */}
+      <div className="grid min-w-0 gap-6 lg:grid-cols-2 2xl:grid-cols-3">
         {deviceData.length > 0 && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Smartphone className="h-5 w-5" />
-                Device Distribution
-              </CardTitle>
-              <CardDescription>Visitor device types</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={250}>
-                <PieChart>
-                  <Pie
-                    data={deviceData}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={(entry) => `${entry.name}: ${entry.value}`}
-                    outerRadius={80}
-                    fill="#8884d8"
-                    dataKey="value"
-                  >
-                    {deviceData.map((entry, index) => (
-                      <Cell
-                        key={`cell-${index}`}
-                        fill={DEVICE_COLORS[index % DEVICE_COLORS.length]}
-                      />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
+          <ChartCard title="Devices" subtitle={<span className="inline-flex items-center gap-1.5"><Smartphone className="h-3.5 w-3.5" /> What visitors used to open your links</span>}>
+            <PartBreakdown data={deviceData} unit="visits" colorFor={(n) => DEVICE_COLORS[n.toLowerCase()] ?? VIZ.neutral} />
+          </ChartCard>
         )}
-
-        {/* Browser Distribution */}
         {browserData.length > 0 && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Top Browsers</CardTitle>
-              <CardDescription>Most used browsers</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={250}>
-                <BarChart data={browserData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                  <XAxis dataKey="name" stroke="#888" style={{ fontSize: '12px' }} />
-                  <YAxis stroke="#888" style={{ fontSize: '12px' }} />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: '#fff',
-                      border: '1px solid #e5e7eb',
-                      borderRadius: '6px',
-                    }}
-                  />
-                  <Bar dataKey="value" fill="#8b5cf6" radius={[8, 8, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
+          <ChartCard title="Browsers" subtitle="Most used browsers">
+            <RankedBars
+              items={[...browserData].sort((x, y) => y.value - x.value).map((d) => ({ key: d.name, label: d.name, value: d.value }))}
+              format={(v) => formatCount(v)}
+              max={6}
+            />
+          </ChartCard>
+        )}
+        {topCountries.length > 0 && (
+          <ChartCard title="Countries" subtitle={<span className="inline-flex items-center gap-1.5"><Globe className="h-3.5 w-3.5" /> Where your clicks come from</span>}>
+            <RankedBars
+              items={topCountries.map((c) => ({ key: c.country, label: c.country, value: c.visits }))}
+              format={(v) => formatCount(v)}
+            />
+          </ChartCard>
         )}
       </div>
-
-      {/* Geographic Distribution */}
-      {topCountries.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Globe className="h-5 w-5" />
-              Top Countries
-            </CardTitle>
-            <CardDescription>Geographic distribution of clicks</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {topCountries.map((country, index) => (
-                <div key={index} className="flex items-center gap-4">
-                  <span className="font-medium text-sm flex-1">{country.country}</span>
-                  <div className="flex-1 bg-muted rounded-full h-2 overflow-hidden">
-                    <div
-                      className="bg-primary h-full rounded-full transition-all"
-                      style={{
-                        width: `${
-                          (country.visits / Math.max(...topCountries.map((c) => c.visits))) *
-                          100
-                        }%`,
-                      }}
-                    />
-                  </div>
-                  <span className="font-semibold text-sm w-12 text-right">
-                    {country.visits}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
 
       {/* Links Performance Table */}
       <Card>

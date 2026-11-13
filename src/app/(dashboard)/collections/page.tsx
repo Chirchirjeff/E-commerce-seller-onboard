@@ -12,7 +12,15 @@ import { Plus, Layers, Pencil, Trash2, ToggleLeft, ToggleRight, ChevronRight } f
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
-import { CollectionFormDialog } from '@/components/collections/CollectionFormDialog'
+import dynamic from 'next/dynamic'
+import { Skeleton } from '@/components/ui/skeleton'
+import { CollectionListSkeleton } from '@/components/shared/page-skeletons'
+
+// Dialog only opens on user action — fetch its chunk on demand.
+const CollectionFormDialog = dynamic(
+  () => import('@/components/collections/CollectionFormDialog').then((m) => m.CollectionFormDialog),
+  { ssr: false }
+)
 import {
   useCollections,
   useDeleteCollection,
@@ -28,6 +36,10 @@ export default function CollectionsPage() {
 
   const [isCreateOpen, setIsCreateOpen] = React.useState(false)
   const [editingCollection, setEditingCollection] = React.useState<Collection | null>(null)
+  // Mount the (lazy) dialogs the first time one is requested, then keep them
+  // mounted so open/close behaves exactly as before.
+  const [dialogsMounted, setDialogsMounted] = React.useState(false)
+  if (!dialogsMounted && (isCreateOpen || editingCollection)) setDialogsMounted(true)
   const [deletingId, setDeletingId] = React.useState<string | null>(null)
   const [actionError, setActionError] = React.useState<string | null>(null)
 
@@ -77,7 +89,7 @@ export default function CollectionsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Total collections</p>
-                <p className="text-2xl font-bold">{isLoading ? '—' : (collections?.length ?? 0)}</p>
+                {isLoading ? <Skeleton className="mt-1 h-8 w-12" /> : <p className="text-2xl font-bold">{(collections?.length ?? 0)}</p>}
               </div>
               <div className="rounded-lg bg-primary/10 p-3 text-primary">
                 <Layers className="h-5 w-5" />
@@ -88,13 +100,13 @@ export default function CollectionsPage() {
         <Card>
           <CardContent className="p-4">
             <p className="text-sm text-muted-foreground">Active</p>
-            <p className="text-2xl font-bold text-green-500">{isLoading ? '—' : activeCount}</p>
+            {isLoading ? <Skeleton className="mt-1 h-8 w-12" /> : <p className="text-2xl font-bold text-green-500">{activeCount}</p>}
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
             <p className="text-sm text-muted-foreground">Total products assigned</p>
-            <p className="text-2xl font-bold">{isLoading ? '—' : totalProducts}</p>
+            {isLoading ? <Skeleton className="mt-1 h-8 w-12" /> : <p className="text-2xl font-bold">{totalProducts}</p>}
           </CardContent>
         </Card>
       </div>
@@ -108,11 +120,7 @@ export default function CollectionsPage() {
 
       {/* Collections list */}
       {isLoading ? (
-        <div className="space-y-3">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="h-20 animate-pulse rounded-lg bg-muted" />
-          ))}
-        </div>
+        <CollectionListSkeleton />
       ) : !collections?.length ? (
         <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16 text-center">
           <Layers className="mb-4 h-10 w-10 text-muted-foreground" />
@@ -203,18 +211,22 @@ export default function CollectionsPage() {
         </div>
       )}
 
-      {/* Create dialog */}
-      <CollectionFormDialog
-        open={isCreateOpen}
-        onOpenChange={setIsCreateOpen}
-      />
+      {dialogsMounted && (
+        <>
+          {/* Create dialog */}
+          <CollectionFormDialog
+            open={isCreateOpen}
+            onOpenChange={setIsCreateOpen}
+          />
 
-      {/* Edit dialog */}
-      <CollectionFormDialog
-        open={Boolean(editingCollection)}
-        onOpenChange={(open) => { if (!open) setEditingCollection(null) }}
-        collection={editingCollection}
-      />
+          {/* Edit dialog */}
+          <CollectionFormDialog
+            open={Boolean(editingCollection)}
+            onOpenChange={(open) => { if (!open) setEditingCollection(null) }}
+            collection={editingCollection}
+          />
+        </>
+      )}
 
       {/* Delete confirmation */}
       {deletingId && (

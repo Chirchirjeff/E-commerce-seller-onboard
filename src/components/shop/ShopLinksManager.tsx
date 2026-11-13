@@ -24,6 +24,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { useShop } from '@/hooks/use-shop'
 import { useShopLinks } from '@/hooks/use-shop-links'
+import { Skeleton, SkeletonGroup } from '@/components/ui/skeleton'
 
 // All shared seller links open in the buyer storefront. The token after this
 // common origin uniquely identifies the seller's shop.
@@ -149,9 +150,17 @@ export default function ShopLinksManager() {
       </CardHeader>
       <CardContent>
         {isLoading ? (
-          <div className="flex items-center justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-          </div>
+          <SkeletonGroup label="Loading share links…" className="space-y-3">
+            {[0, 1].map((i) => (
+              <div key={i} className="flex items-center justify-between gap-3 rounded-lg border p-4" aria-hidden="true">
+                <div className="min-w-0 flex-1 space-y-2">
+                  <Skeleton className="h-3 w-24" />
+                  <Skeleton className="h-9 w-full" />
+                </div>
+                <Skeleton className="h-9 w-20" />
+              </div>
+            ))}
+          </SkeletonGroup>
         ) : links.length === 0 ? (
           <div className="text-center py-12">
             <div className="rounded-full bg-slate-100 p-4 w-fit mx-auto mb-4">
