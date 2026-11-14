@@ -14,6 +14,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { apiClient, getFriendlyError } from '@/lib/api-client'
+import { PhoneInput, validateKenyanPhone } from '@/components/ui/phone-input'
 import { cn } from '@/lib/utils'
 
 export default function RegisterPage() {
@@ -28,7 +29,7 @@ export default function RegisterPage() {
     email: '',
     password: '',
     confirmPassword: '',
-    phone: '',
+    phone: '+254',
   })
 
   React.useEffect(() => {
@@ -52,6 +53,13 @@ export default function RegisterPage() {
 
     if (formData.password.length < 8) {
       setError('Password must be at least 8 characters')
+      setIsLoading(false)
+      return
+    }
+
+    const phoneError = validateKenyanPhone(formData.phone)
+    if (phoneError) {
+      setError(phoneError)
       setIsLoading(false)
       return
     }
@@ -154,13 +162,12 @@ export default function RegisterPage() {
 
             <div className="space-y-2">
               <Label htmlFor="phone">Phone Number</Label>
-              <Input
+              <PhoneInput
                 id="phone"
-                type="tel"
-                placeholder="+1 234 567 8900"
                 value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                onChange={(e164) => setFormData({ ...formData, phone: e164 })}
                 disabled={isLoading}
+                required
               />
             </div>
 

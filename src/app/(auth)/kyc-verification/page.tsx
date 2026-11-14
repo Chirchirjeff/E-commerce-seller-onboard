@@ -10,6 +10,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Upload, Loader2, AlertCircle, Store } from 'lucide-react'
 import { apiClient, getFriendlyError } from '@/lib/api-client'
 import { KYCGuard } from '@/components/auth/KYCGuard'
+import { PhoneInput, validateKenyanPhone } from '@/components/ui/phone-input'
 
 function KYCVerificationForm() {
   const router = useRouter()
@@ -19,7 +20,7 @@ function KYCVerificationForm() {
     businessName: '',
     businessAddress: '',
     taxId: '',
-    phone: '',
+    phone: '+254',
     description: '',
     idFile: null as File | null,
     businessLicense: null as File | null,
@@ -29,6 +30,13 @@ function KYCVerificationForm() {
     e.preventDefault()
     setIsLoading(true)
     setError('')
+
+    const phoneError = validateKenyanPhone(formData.phone)
+    if (phoneError) {
+      setError(phoneError)
+      setIsLoading(false)
+      return
+    }
 
     const form = new FormData()
     form.append('businessName', formData.businessName)
@@ -104,13 +112,11 @@ function KYCVerificationForm() {
 
           <div className="space-y-2">
             <Label htmlFor="phone">Phone Number *</Label>
-            <Input
+            <PhoneInput
               id="phone"
               required
-              type="tel"
-              placeholder="+1 234 567 8900"
               value={formData.phone}
-              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+              onChange={(e164) => setFormData({ ...formData, phone: e164 })}
               disabled={isLoading}
             />
           </div>
