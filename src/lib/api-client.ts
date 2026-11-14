@@ -52,9 +52,9 @@ export function getFriendlyError(
     case 403:
       return "You don't have permission to do that."
     case 404:
-      return context === 'kyc'
-        ? 'Verification record not found. Please submit your details.'
-        : 'The requested resource was not found.'
+      if (context === 'kyc') return 'Verification record not found. Please submit your details.'
+      if (context === 'register') return 'Registration failed. Please try again.'
+      return 'The requested resource was not found.'
     case 409:
       return context === 'register'
         ? 'An account with this email already exists. Try signing in instead.'

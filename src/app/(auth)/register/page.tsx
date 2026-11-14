@@ -73,8 +73,7 @@ export default function RegisterPage() {
         router.push('/verify')
       }, 3000)
     } catch (err: any) {
-      const backendMsg = (err as any)?.response?.data?.message
-      setError(backendMsg || getFriendlyError(err, 'Registration failed. Please try again.', 'register'))
+      setError(getFriendlyError(err, 'Registration failed. Please try again.', 'register'))
       setIsLoading(false)
     }
   }
