@@ -221,7 +221,7 @@ export default function ShopLinksManager() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem
-                        className="text-blue-600 cursor-pointer"
+                        className="text-primary cursor-pointer"
                         onClick={() => {
                           const url = `${BUYER_WEBAPP_URL}/${link.token}`
                           window.open(url, '_blank')

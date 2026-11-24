@@ -417,7 +417,7 @@ function ModePreview({ mode }: { mode: 'light' | 'dark' | 'system' }) {
           <div className="flex-1 space-y-1 pt-0.5">
             <div className="h-1.5 rounded bg-slate-200" />
             <div className="h-1.5 w-3/4 rounded bg-slate-100" />
-            <div className="mt-1 h-2 w-1/2 rounded bg-blue-400" />
+            <div className="mt-1 h-2 w-1/2 rounded bg-primary" />
           </div>
         </div>
       </div>
@@ -433,7 +433,7 @@ function ModePreview({ mode }: { mode: 'light' | 'dark' | 'system' }) {
           <div className="flex-1 space-y-1 pt-0.5">
             <div className="h-1.5 rounded bg-slate-700" />
             <div className="h-1.5 w-3/4 rounded bg-slate-800" />
-            <div className="mt-1 h-2 w-1/2 rounded bg-blue-500" />
+            <div className="mt-1 h-2 w-1/2 rounded bg-primary" />
           </div>
         </div>
       </div>
@@ -460,7 +460,7 @@ function ModePreview({ mode }: { mode: 'light' | 'dark' | 'system' }) {
         <div className="flex-1 space-y-1 pt-0.5">
           <div className="h-1.5 rounded" style={{ background: 'linear-gradient(to right, #e2e8f0 50%, #334155 50%)' }} />
           <div className="h-1.5 w-3/4 rounded" style={{ background: 'linear-gradient(to right, #f1f5f9 50%, #1e293b 50%)' }} />
-          <div className="mt-1 h-2 w-1/2 rounded bg-blue-500" />
+          <div className="mt-1 h-2 w-1/2 rounded bg-primary" />
         </div>
       </div>
     </div>

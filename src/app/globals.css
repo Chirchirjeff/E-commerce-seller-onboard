@@ -4,48 +4,50 @@
 
 @layer base {
   :root {
+    /* Quza brand purple — neutrals carry a faint purple tint so the whole UI
+       reads as one family. Brand scale: 600 #7847e8 (light), 400 #ab8ffb (dark). */
     --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --foreground: 258 45% 9%;
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 258 45% 9%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --popover-foreground: 258 45% 9%;
+    --primary: 258.3 77.8% 59.4%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 255 60% 96.5%;
+    --secondary-foreground: 259 55% 22%;
+    --muted: 255 35% 96.5%;
+    --muted-foreground: 257 12% 46%;
+    --accent: 254.3 100% 95.9%;
+    --accent-foreground: 259.6 53.5% 33.7%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
+    --border: 255 30% 91%;
+    --input: 255 30% 91%;
+    --ring: 258.3 77.8% 59.4%;
     --radius: 0.5rem;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --background: 258 35% 6%;
+    --foreground: 252 40% 97%;
+    --card: 258 32% 8.5%;
+    --card-foreground: 252 40% 97%;
+    --popover: 258 32% 8.5%;
+    --popover-foreground: 252 40% 97%;
+    --primary: 255.6 93.1% 77.3%;
+    --primary-foreground: 258.5 60% 14%;
+    --secondary: 258 25% 16%;
+    --secondary-foreground: 252 40% 97%;
+    --muted: 258 25% 16%;
+    --muted-foreground: 255 15% 68%;
+    --accent: 258 30% 19%;
+    --accent-foreground: 252 40% 97%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 48%;
+    --border: 258 22% 18%;
+    --input: 258 22% 18%;
+    --ring: 255.6 93.1% 77.3%;
   }
 }
 
@@ -84,30 +86,30 @@
    for both :root (light) and .dark.
    ============================================================ */
 
-/* ── Blue (default, no override needed) ── */
+/* ── Purple (default — the Quza brand colour, same values as :root) ── */
+[data-accent="purple"] {
+  --primary: 258.3 77.8% 59.4%;
+  --primary-foreground: 0 0% 100%;
+  --ring: 258.3 77.8% 59.4%;
+}
+.dark[data-accent="purple"],
+.dark [data-accent="purple"] {
+  --primary: 255.6 93.1% 77.3%;
+  --primary-foreground: 258.5 60% 14%;
+  --ring: 255.6 93.1% 77.3%;
+}
+
+/* ── Blue ── */
 [data-accent="blue"] {
   --primary: 221.2 83.2% 53.3%;
   --primary-foreground: 210 40% 98%;
   --ring: 221.2 83.2% 53.3%;
 }
-[data-accent="blue"].dark,
+.dark[data-accent="blue"],
 .dark [data-accent="blue"] {
   --primary: 217.2 91.2% 59.8%;
   --primary-foreground: 222.2 47.4% 11.2%;
   --ring: 224.3 76.3% 48%;
-}
-
-/* ── Purple ── */
-[data-accent="purple"] {
-  --primary: 262.1 83.3% 57.8%;
-  --primary-foreground: 210 40% 98%;
-  --ring: 262.1 83.3% 57.8%;
-}
-.dark[data-accent="purple"],
-.dark [data-accent="purple"] {
-  --primary: 263.4 70% 50.4%;
-  --primary-foreground: 210 40% 98%;
-  --ring: 263.4 70% 50.4%;
 }
 
 /* ── Violet ── */
@@ -200,6 +202,149 @@
   --primary-foreground: 222.2 47.4% 11.2%;
   --ring: 215.4 16.3% 56.9%;
 }
+/* ── Gold ── */
+[data-accent="gold"] {
+  --primary: 42.7 88.7% 38.2%;
+  --primary-foreground: 222.2 47.4% 11.2%;
+  --ring: 42.7 88.7% 38.2%;
+}
+.dark[data-accent="gold"],
+.dark [data-accent="gold"] {
+  --primary: 44.7 79.7% 51.8%;
+  --primary-foreground: 222.2 47.4% 11.2%;
+  --ring: 44.7 79.7% 51.8%;
+}
+
+/* ── Indigo ── */
+[data-accent="indigo"] {
+  --primary: 243.4 75.4% 58.6%;
+  --primary-foreground: 0 0% 100%;
+  --ring: 243.4 75.4% 58.6%;
+}
+.dark[data-accent="indigo"],
+.dark [data-accent="indigo"] {
+  --primary: 234.5 89.5% 73.9%;
+  --primary-foreground: 222.2 47.4% 11.2%;
+  --ring: 234.5 89.5% 73.9%;
+}
+
+/* ── Sky ── */
+[data-accent="sky"] {
+  --primary: 200.4 98.0% 39.4%;
+  --primary-foreground: 222.2 47.4% 11.2%;
+  --ring: 200.4 98.0% 39.4%;
+}
+.dark[data-accent="sky"],
+.dark [data-accent="sky"] {
+  --primary: 198.4 93.2% 59.6%;
+  --primary-foreground: 222.2 47.4% 11.2%;
+  --ring: 198.4 93.2% 59.6%;
+}
+
+/* ── Cyan ── */
+[data-accent="cyan"] {
+  --primary: 191.6 91.4% 36.5%;
+  --primary-foreground: 222.2 47.4% 11.2%;
+  --ring: 191.6 91.4% 36.5%;
+}
+.dark[data-accent="cyan"],
+.dark [data-accent="cyan"] {
+  --primary: 187.9 85.7% 53.3%;
+  --primary-foreground: 222.2 47.4% 11.2%;
+  --ring: 187.9 85.7% 53.3%;
+}
+
+/* ── Emerald ── */
+[data-accent="emerald"] {
+  --primary: 161.4 93.5% 30.4%;
+  --primary-foreground: 222.2 47.4% 11.2%;
+  --ring: 161.4 93.5% 30.4%;
+}
+.dark[data-accent="emerald"],
+.dark [data-accent="emerald"] {
+  --primary: 158.1 64.4% 51.6%;
+  --primary-foreground: 222.2 47.4% 11.2%;
+  --ring: 158.1 64.4% 51.6%;
+}
+
+/* ── Lime ── */
+[data-accent="lime"] {
+  --primary: 84.8 85.2% 34.5%;
+  --primary-foreground: 222.2 47.4% 11.2%;
+  --ring: 84.8 85.2% 34.5%;
+}
+.dark[data-accent="lime"],
+.dark [data-accent="lime"] {
+  --primary: 82.7 78.0% 55.5%;
+  --primary-foreground: 222.2 47.4% 11.2%;
+  --ring: 82.7 78.0% 55.5%;
+}
+
+/* ── Red ── */
+[data-accent="red"] {
+  --primary: 0.0 72.2% 50.6%;
+  --primary-foreground: 0 0% 100%;
+  --ring: 0.0 72.2% 50.6%;
+}
+.dark[data-accent="red"],
+.dark [data-accent="red"] {
+  --primary: 0.0 90.6% 70.8%;
+  --primary-foreground: 222.2 47.4% 11.2%;
+  --ring: 0.0 90.6% 70.8%;
+}
+
+/* ── Pink ── */
+[data-accent="pink"] {
+  --primary: 333.3 71.4% 50.6%;
+  --primary-foreground: 0 0% 100%;
+  --ring: 333.3 71.4% 50.6%;
+}
+.dark[data-accent="pink"],
+.dark [data-accent="pink"] {
+  --primary: 328.6 85.5% 70.2%;
+  --primary-foreground: 222.2 47.4% 11.2%;
+  --ring: 328.6 85.5% 70.2%;
+}
+
+/* ── Fuchsia ── */
+[data-accent="fuchsia"] {
+  --primary: 293.4 69.5% 48.8%;
+  --primary-foreground: 0 0% 100%;
+  --ring: 293.4 69.5% 48.8%;
+}
+.dark[data-accent="fuchsia"],
+.dark [data-accent="fuchsia"] {
+  --primary: 292.0 91.4% 72.5%;
+  --primary-foreground: 222.2 47.4% 11.2%;
+  --ring: 292.0 91.4% 72.5%;
+}
+
+/* ── Coral ── */
+[data-accent="coral"] {
+  --primary: 21.0 90.2% 47.8%;
+  --primary-foreground: 222.2 47.4% 11.2%;
+  --ring: 21.0 90.2% 47.8%;
+}
+.dark[data-accent="coral"],
+.dark [data-accent="coral"] {
+  --primary: 17.2 100.0% 67.8%;
+  --primary-foreground: 222.2 47.4% 11.2%;
+  --ring: 17.2 100.0% 67.8%;
+}
+
+/* ── Mocha ── */
+[data-accent="mocha"] {
+  --primary: 25.8 39.7% 39.0%;
+  --primary-foreground: 0 0% 100%;
+  --ring: 25.8 39.7% 39.0%;
+}
+.dark[data-accent="mocha"],
+.dark [data-accent="mocha"] {
+  --primary: 31.4 42.7% 59.6%;
+  --primary-foreground: 222.2 47.4% 11.2%;
+  --ring: 31.4 42.7% 59.6%;
+}
+
 /* ── Chart palette ───────────────────────────────────────────────────────────
    Validated categorical palette (CVD-safe adjacent pairs in both modes; run
    through the dataviz palette validator). Light and dark are separate steps of

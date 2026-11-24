@@ -79,7 +79,7 @@ function buildHtml(p: NotifyPayload, orderUrl: string): string {
   <main style="max-width:600px;margin:0 auto;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08)">
 
     <!-- Header -->
-    <div style="background:#0f766e;padding:24px 32px">
+    <div style="background:#6535cc;padding:24px 32px">
       <p style="margin:0;font-size:20px;font-weight:700;color:#ffffff">🎉 New sale on your shop!</p>
     </div>
 
@@ -106,7 +106,7 @@ function buildHtml(p: NotifyPayload, orderUrl: string): string {
         </tr>
         <tr>
           <td style="padding:12px 16px;border-bottom:1px solid #e2e8f0;color:#475569">Amount</td>
-          <td style="padding:12px 16px;border-bottom:1px solid #e2e8f0;text-align:right;font-size:18px;font-weight:700;color:#0f766e">${amount}</td>
+          <td style="padding:12px 16px;border-bottom:1px solid #e2e8f0;text-align:right;font-size:18px;font-weight:700;color:#6535cc">${amount}</td>
         </tr>
         <tr>
           <td style="padding:12px 16px;color:#475569">Date</td>
@@ -121,7 +121,7 @@ function buildHtml(p: NotifyPayload, orderUrl: string): string {
       <!-- CTA -->
       <p style="margin:0">
         <a href="${link}"
-           style="display:inline-block;background:#0f766e;color:#ffffff;text-decoration:none;font-weight:700;padding:12px 22px;border-radius:8px;font-size:14px">
+           style="display:inline-block;background:#6535cc;color:#ffffff;text-decoration:none;font-weight:700;padding:12px 22px;border-radius:8px;font-size:14px">
           View order in dashboard →
         </a>
       </p>
