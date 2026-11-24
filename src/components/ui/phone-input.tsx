@@ -3,10 +3,9 @@
  *
  * Rules:
  *   - Always prefixed with +254 (shown as a locked prefix)
- *   - User types the local number: 07XXXXXXXX or 01XXXXXXXX (10 digits)
- *   - Leading zero is stripped automatically → stored as +2547XXXXXXXX or +2541XXXXXXXX
- *   - Accepts exactly 9 digits after the country code (the 10-digit local number minus the leading 0)
- *   - Valid prefixes after stripping 0: 7XX or 1XX
+ *   - User types the local number; a leading zero (07… / 01…) is dropped as they type
+ *   - The box only ever holds the 9 digits after the country code: 7XXXXXXXX or 1XXXXXXXX
+ *   - Stored as +2547XXXXXXXX or +2541XXXXXXXX
  */
 
 'use client'
@@ -23,29 +22,29 @@ interface PhoneInputProps {
   className?: string
 }
 
-/** Convert whatever the user typed into a normalised E.164 string (+254XXXXXXXXX). */
-function toE164(raw: string): string {
-  // Strip everything except digits
-  const digits = raw.replace(/\D/g, '')
+const LOCAL_LENGTH = 9
 
-  if (!digits) return '+254'
+/**
+ * Reduce whatever the user typed or pasted to the local part: digits only,
+ * no country code, no leading zero, at most 9 digits.
+ */
+function toLocalDigits(raw: string): string {
+  let digits = raw.replace(/\D/g, '')
 
-  // If they somehow typed the country code themselves, strip the leading 254
-  const local = digits.startsWith('254')
-    ? digits.slice(3)
-    : digits.startsWith('0')
-    ? digits.slice(1)
-    : digits
+  // A pasted full number (254712345678 / +254 712 345 678) — drop the country code
+  if (digits.startsWith('254') && digits.length > LOCAL_LENGTH) {
+    digits = digits.slice(3)
+  }
 
-  return '+254' + local
+  // Drop the leading zero(s): 0712345678 → 712345678
+  digits = digits.replace(/^0+/, '')
+
+  return digits.slice(0, LOCAL_LENGTH)
 }
 
 /** Pull just the local part (after +254) to show in the input box. */
 function toLocalDisplay(e164: string): string {
-  if (!e164.startsWith('+254')) return e164
-  const local = e164.slice(4) // digits after +254
-  // Re-add the leading 0 so it matches what the user expects to type
-  return local ? '0' + local : ''
+  return toLocalDigits(e164)
 }
 
 /** Validate a full E.164 Kenyan number. Returns an error string or ''. */
@@ -67,7 +66,7 @@ export function validateKenyanPhone(e164: string): string {
 
   // After stripping the leading 0, valid Kenyan prefixes are 7XX and 1XX
   if (!/^[71]/.test(local)) {
-    return 'Enter a valid Safaricom/Airtel number starting with 07 or 01'
+    return 'Enter a valid number starting with 7 or 1'
   }
 
   return ''
@@ -92,14 +91,10 @@ export function PhoneInput({
   const error = touched ? validateKenyanPhone(value) : ''
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const raw = e.target.value
+    const local = toLocalDigits(e.target.value)
 
-    // Allow only digits and a single leading zero
-    const cleaned = raw.replace(/[^\d]/g, '').slice(0, 10) // max 10 chars (0 + 9 digits)
-    const display = cleaned ? (cleaned.startsWith('0') ? cleaned : '0' + cleaned) : ''
-
-    setLocalText(display)
-    onChange(toE164(cleaned))
+    setLocalText(local)
+    onChange('+254' + local)
   }
 
   function handleBlur() {
@@ -125,7 +120,7 @@ export function PhoneInput({
           🇰🇪 +254
         </span>
 
-        {/* Editable local part — user types 07XXXXXXXX */}
+        {/* Editable local part — 9 digits, leading zero is dropped */}
         <input
           id={id}
           type="tel"
@@ -148,12 +143,6 @@ export function PhoneInput({
       {error && touched && (
         <p id={`${id}-error`} className="text-xs text-destructive flex items-center gap-1">
           {error}
-        </p>
-      )}
-
-      {!error && (
-        <p className="text-xs text-muted-foreground">
-          Kenyan number — enter 07XX XXX XXX or 01XX XXX XXX
         </p>
       )}
     </div>
