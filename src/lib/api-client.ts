@@ -29,7 +29,13 @@ export function getFriendlyError(
   // Surface backend validation messages when they are safe to show (4xx client errors).
   // The backend sends a human-readable `message` field for things like
   // "Password must be at least 8 characters" — pass those straight through.
-  const backendMessage: string | undefined = err?.response?.data?.message
+  // Validation errors arrive as { message: string[] }; others as { message: string }.
+  const rawMessage: unknown = err?.response?.data?.message
+  const backendMessage: string | undefined = Array.isArray(rawMessage)
+    ? rawMessage.filter((m): m is string => typeof m === 'string' && m.length > 0).join(' ') || undefined
+    : typeof rawMessage === 'string' && rawMessage
+      ? rawMessage
+      : undefined
 
   if (process.env.NODE_ENV !== 'production') {
     console.error('[API Error]', err)

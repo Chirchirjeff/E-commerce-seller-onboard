@@ -4,6 +4,7 @@ import React, { useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Upload, X, Loader2 } from 'lucide-react'
 import { apiClient } from '@/lib/api-client'
+import { CoverPhotoPreview } from '@/components/shop/cover-photo-preview'
 
 interface ImageUploadFieldProps {
   label: string
@@ -12,6 +13,10 @@ interface ImageUploadFieldProps {
   disabled?: boolean
   maxSize?: number // in bytes, default 5MB
   acceptedFormats?: string[] // default: ['image/jpeg', 'image/png', 'image/webp']
+  /** Optional helper text shown under the field (e.g. recommended dimensions). */
+  description?: React.ReactNode
+  /** 'square' (default) thumbnail, or 'cover' — a 4:1 banner preview matching the storefront. */
+  previewVariant?: 'square' | 'cover'
 }
 
 export default function ImageUploadField({
@@ -21,6 +26,8 @@ export default function ImageUploadField({
   disabled = false,
   maxSize = 5 * 1024 * 1024, // 5MB default
   acceptedFormats = ['image/jpeg', 'image/png', 'image/webp'],
+  description,
+  previewVariant = 'square',
 }: ImageUploadFieldProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
@@ -81,7 +88,23 @@ export default function ImageUploadField({
       <label className="block text-sm font-medium">{label}</label>
 
       <div className="flex flex-col gap-4">
-        {preview && (
+        {preview && previewVariant === 'cover' && (
+          <CoverPhotoPreview src={preview} alt="Preview">
+            {!uploading && (
+              <button
+                type="button"
+                onClick={handleRemove}
+                disabled={disabled}
+                aria-label="Remove image"
+                className="absolute top-1 right-1 z-10 p-1 rounded-full bg-red-500 hover:bg-red-600 disabled:opacity-50"
+              >
+                <X className="h-4 w-4 text-white" />
+              </button>
+            )}
+          </CoverPhotoPreview>
+        )}
+
+        {preview && previewVariant === 'square' && (
           <div className="relative h-32 w-32 rounded-lg border overflow-hidden bg-muted">
             {/* Use regular HTML img tag to avoid Next.js Image optimization issues */}
             <img 
@@ -145,6 +168,7 @@ export default function ImageUploadField({
         <p className="text-xs text-muted-foreground">
           {Math.round(maxSize / 1024 / 1024)}MB max • JPG, PNG, WebP
         </p>
+        {description && <p className="text-xs text-muted-foreground">{description}</p>}
       </div>
     </div>
   )

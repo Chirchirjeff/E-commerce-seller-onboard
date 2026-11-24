@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge'
 import { useShop, useUpdateShop } from '@/hooks/use-shop'
 import { Store, Loader2, CheckCircle2 } from 'lucide-react'
 import ImageUploadField from '@/components/ui/image-upload-field'
+import { CoverPhotoPreview } from '@/components/shop/cover-photo-preview'
 import ShopLinksManager from '@/components/shop/ShopLinksManager'
 import { ShopLinksAnalyticsSkeleton, ShopSkeleton } from '@/components/shared/page-skeletons'
 
@@ -131,6 +132,8 @@ export default function ShopPage() {
                       value={formData.coverPhoto}
                       onChange={(url) => setFormData({ ...formData, coverPhoto: url })}
                       disabled={!isEditing}
+                      previewVariant="cover"
+                      description="Recommended: a wide image, at least 1600 × 600 px. The whole image is always shown; empty space is filled with a blurred copy."
                     />
                   </>
                 )}
@@ -161,21 +164,7 @@ export default function ShopPage() {
                     <div className="space-y-2">
                       <Label>Shop Cover Photo</Label>
                       {formData.coverPhoto ? (
-                        <div className="h-32 w-full rounded-lg border overflow-hidden bg-muted flex items-center justify-center">
-                          <img 
-                            src={formData.coverPhoto} 
-                            alt="Shop cover" 
-                            loading="lazy"
-                            decoding="async"
-                            className="h-full w-full object-cover"
-                            crossOrigin="anonymous"
-                            onError={(e) => {
-                              console.error('Cover photo failed to load:', formData.coverPhoto)
-                              const img = e.target as HTMLImageElement
-                              img.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="128"%3E%3Crect fill="%23e0e7ff" width="400" height="128"/%3E%3Ctext x="50%" y="50%" font-size="14" fill="%236366f1" text-anchor="middle" dy=".3em"%3ENo Image%3C/text%3E%3C/svg%3E'
-                            }}
-                          />
-                        </div>
+                        <CoverPhotoPreview src={formData.coverPhoto} alt="Shop cover" />
                       ) : (
                         <p className="text-sm text-muted-foreground">No cover photo uploaded</p>
                       )}

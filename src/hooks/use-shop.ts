@@ -31,8 +31,19 @@ export function useShopStats() {
   })
 }
 
+/** Row shape for the dashboard's Recent Orders table. */
+export interface RecentOrderRow {
+  id: string
+  customer: string
+  customerUsername: string | null
+  customerAvatarUrl: string | null
+  amount: number
+  status: string
+  date: string
+}
+
 export function useRecentOrders(limit: number = 5) {
-  return useQuery({
+  return useQuery<RecentOrderRow[]>({
     queryKey: ['shop', 'orders', 'recent', limit],
     queryFn: async () => {
       const { data } = await apiClient.get(`/orders/recent?limit=${limit}`)
@@ -40,6 +51,8 @@ export function useRecentOrders(limit: number = 5) {
       return data.map((order: any) => ({
         id: order.orderNumber || order.id,
         customer: order.deliveryName || order.buyer?.name || 'Unknown',
+        customerUsername: order.buyer?.username ?? null,
+        customerAvatarUrl: order.buyer?.avatarUrl ?? null,
         amount: order.total,
         status: order.status,
         date: new Date(order.createdAt).toLocaleDateString('en-KE', {

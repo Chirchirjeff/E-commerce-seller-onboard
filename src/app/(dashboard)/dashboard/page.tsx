@@ -12,7 +12,8 @@ import { ChartCard, StatusBreakdown, formatCount, formatKsh, percentChange } fro
 import { Skeleton, SkeletonGroup } from '@/components/ui/skeleton'
 import { useSellerAnalytics } from '@/hooks/use-analytics'
 import { DataTable } from '@/components/shared/data-table'
-import { useShopStats, useRecentOrders } from '@/hooks/use-shop'
+import { useShopStats, useRecentOrders, type RecentOrderRow } from '@/hooks/use-shop'
+import { UserIdentity } from '@/components/shared/user-identity'
 import {
   DollarSign,
   ShoppingBag,
@@ -141,7 +142,13 @@ export default function DashboardPage() {
           isLoading={ordersLoading}
           columns={[
             { key: 'id', label: 'Order ID', className: 'font-mono text-sm' },
-            { key: 'customer', label: 'Customer' },
+            {
+              key: 'customer',
+              label: 'Customer',
+              render: (value: string, row: RecentOrderRow) => (
+                <UserIdentity name={value} username={row.customerUsername} avatarUrl={row.customerAvatarUrl} />
+              ),
+            },
             { key: 'amount', label: 'Amount', render: (value) => `Ksh ${Number(value ?? 0).toFixed(2)}` },
             { key: 'status', label: 'Status', render: (value) => {
               const colors: Record<string, any> = {

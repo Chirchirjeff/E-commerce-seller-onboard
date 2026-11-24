@@ -19,6 +19,7 @@
 import * as React from 'react'
 import { apiClient } from '@/lib/api-client'
 import { formatCurrency, formatDate } from '@/lib/utils'
+import type { PublicUserProfile } from '@/types/user'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -154,7 +155,7 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
       total: number
       paymentStatus: string
       createdAt: string
-      buyer?: { name?: string }
+      buyer?: PublicUserProfile | null
       items?: Array<{ product?: { name?: string } }>
     }>
 

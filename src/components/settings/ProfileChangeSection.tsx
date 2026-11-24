@@ -22,6 +22,7 @@ import { apiClient, getFriendlyError } from '@/lib/api-client'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { PasswordInput } from '@/components/ui/password-input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { SkeletonGroup } from '@/components/ui/skeleton'
@@ -463,7 +464,7 @@ function ChangeDialog({
 
             <div className="space-y-1.5">
               <Label htmlFor="pc-password">Current password</Label>
-              <Input id="pc-password" type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+              <PasswordInput id="pc-password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} required />
               <p className="text-xs text-muted-foreground">For your security, confirm it&apos;s you before changing account details.</p>
             </div>
 
