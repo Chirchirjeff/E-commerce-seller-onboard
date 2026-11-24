@@ -405,7 +405,7 @@ function AddManualTab({
       {/* Toolbar */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <Input
-          placeholder="Search products…"
+          aria-label="Search products"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="sm:max-w-xs"
@@ -1079,7 +1079,6 @@ function CriteriaField({
         max={field.max}
         step={field.step ?? 1}
         value={value === 0 && field.defaultValue === 0 ? '' : value}
-        placeholder={String(field.defaultValue)}
         onChange={(e) => {
           const n = field.type === 'decimal'
             ? parseFloat(e.target.value)

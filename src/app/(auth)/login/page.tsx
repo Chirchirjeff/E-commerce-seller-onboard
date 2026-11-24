@@ -113,7 +113,6 @@ function LoginForm() {
               <Input
                 id="email"
                 type="email"
-                placeholder="seller@example.com"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 className={cn(error && "border-red-500")}
@@ -137,7 +136,6 @@ function LoginForm() {
               <PasswordInput
                 id="password"
                 autoComplete="current-password"
-                placeholder="Enter your password"
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 className={cn(error && "border-red-500")}

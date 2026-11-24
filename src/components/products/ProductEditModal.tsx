@@ -120,7 +120,6 @@ export function ProductEditModal({
               name="name"
               value={formData.name}
               onChange={handleInputChange}
-              placeholder="Enter product name"
             />
           </div>
 
@@ -152,7 +151,6 @@ export function ProductEditModal({
                 name="description"
                 value={formData.description}
                 onChange={handleInputChange}
-                placeholder="Enter product description"
                 rows={4}
               />
             ) : (
@@ -175,7 +173,6 @@ export function ProductEditModal({
                 step="0.01"
                 value={formData.price}
                 onChange={handleInputChange}
-                placeholder="0.00"
               />
             </div>
             <div className="space-y-2">
@@ -190,7 +187,6 @@ export function ProductEditModal({
                 step="0.01"
                 value={formData.salePrice}
                 onChange={handleInputChange}
-                placeholder="Leave blank if no discount"
               />
             </div>
           </div>
@@ -205,7 +201,6 @@ export function ProductEditModal({
               min="0"
               value={formData.stockQuantity}
               onChange={handleInputChange}
-              placeholder="0"
             />
           </div>
 

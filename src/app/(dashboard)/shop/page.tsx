@@ -115,7 +115,6 @@ export default function ShopPage() {
                     value={formData.businessDescription}
                     onChange={(e) => setFormData({ ...formData, businessDescription: e.target.value })}
                     disabled={!isEditing}
-                    placeholder="Describe your business..."
                   />
                 </div>
                 

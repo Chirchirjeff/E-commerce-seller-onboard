@@ -223,7 +223,6 @@ export default function NewProductPage() {
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     required
-                    placeholder="Enter product name"
                   />
                 </div>
 
@@ -254,7 +253,6 @@ export default function NewProductPage() {
                       className="flex min-h-[120px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                       value={formData.description}
                       onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                      placeholder="Describe your product…"
                     />
                   ) : (
                     <RichDescriptionEditor
@@ -275,7 +273,6 @@ export default function NewProductPage() {
                       value={formData.price}
                       onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                       required
-                      placeholder="0.00"
                     />
                   </div>
 
@@ -287,7 +284,6 @@ export default function NewProductPage() {
                       value={formData.stockQuantity}
                       onChange={(e) => setFormData({ ...formData, stockQuantity: e.target.value })}
                       required
-                      placeholder="0"
                     />
                   </div>
                 </div>
@@ -306,7 +302,6 @@ export default function NewProductPage() {
                     step="0.01"
                     value={formData.salePrice}
                     onChange={(e) => setFormData({ ...formData, salePrice: e.target.value })}
-                    placeholder="Leave blank if no discount"
                   />
                 </div>
 

@@ -203,7 +203,6 @@ export function CollectionFormDialog({
               id="col-name"
               value={name}
               onChange={(e) => handleNameChange(e.target.value)}
-              placeholder="e.g. Hot Deals"
               maxLength={80}
               required
             />
@@ -216,7 +215,6 @@ export function CollectionFormDialog({
               id="col-slug"
               value={slug}
               onChange={(e) => handleSlugChange(e.target.value)}
-              placeholder="e.g. hot-deals"
               maxLength={80}
               required
             />
@@ -232,7 +230,6 @@ export function CollectionFormDialog({
               id="col-desc"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Briefly describe this collection…"
               rows={2}
               maxLength={300}
             />

@@ -223,7 +223,7 @@ function TextBlockEditor({ block, onUpdate }: { block: TextBlock; onUpdate: (b: 
     <Textarea
       value={block.content}
       onChange={(e) => onUpdate({ ...block, content: e.target.value })}
-      placeholder="Enter your description text here…"
+      aria-label="Description text"
       rows={4}
       className="resize-none"
     />
@@ -313,7 +313,6 @@ function ImageBlockEditor({ block, onUpdate }: { block: ImageBlock; onUpdate: (b
         <Input
           value={block.caption ?? ''}
           onChange={(e) => onUpdate({ ...block, caption: e.target.value })}
-          placeholder="Describe this image…"
           className="h-8 text-sm"
         />
       </div>
@@ -367,7 +366,7 @@ function TableBlockEditor({ block, onUpdate }: { block: TableBlock; onUpdate: (b
                   <input
                     value={h}
                     onChange={(e) => updateHeader(ci, e.target.value)}
-                    placeholder={`Header ${ci + 1}`}
+                    aria-label={`Header ${ci + 1}`}
                     className="flex-1 min-w-0 bg-transparent outline-none text-xs font-semibold placeholder:text-muted-foreground"
                   />
                   {headers.length > 1 && (
@@ -395,7 +394,7 @@ function TableBlockEditor({ block, onUpdate }: { block: TableBlock; onUpdate: (b
                   <input
                     value={cell}
                     onChange={(e) => updateCell(ri, ci, e.target.value)}
-                    placeholder="Value"
+                    aria-label={`Row ${ri + 1}, column ${ci + 1}`}
                     className="w-full bg-transparent outline-none text-xs placeholder:text-muted-foreground"
                   />
                 </td>

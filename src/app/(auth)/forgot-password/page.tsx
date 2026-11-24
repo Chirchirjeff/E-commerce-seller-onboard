@@ -228,7 +228,6 @@ function ForgotPasswordFlow() {
                   id="email"
                   type="email"
                   autoComplete="email"
-                  placeholder="seller@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className={cn(error && 'border-red-500')}
@@ -267,7 +266,6 @@ function ForgotPasswordFlow() {
                   pattern="[0-9]*"
                   autoComplete="one-time-code"
                   maxLength={CODE_LENGTH}
-                  placeholder="000000"
                   value={code}
                   onChange={handleCodeChange}
                   className={cn('text-center text-lg font-semibold tracking-[0.5em]', error && 'border-red-500')}
@@ -337,7 +335,6 @@ function ForgotPasswordFlow() {
                 <PasswordInput
                   id="new-password"
                   autoComplete="new-password"
-                  placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className={cn(error && 'border-red-500')}
@@ -353,7 +350,6 @@ function ForgotPasswordFlow() {
                 <PasswordInput
                   id="confirm-password"
                   autoComplete="new-password"
-                  placeholder="••••••••"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   className={cn(error && 'border-red-500')}

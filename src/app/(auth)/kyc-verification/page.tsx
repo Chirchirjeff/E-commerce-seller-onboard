@@ -91,7 +91,6 @@ function KYCVerificationForm() {
             <Input
               id="businessName"
               required
-              placeholder="My Awesome Business"
               value={formData.businessName}
               onChange={(e) => setFormData({ ...formData, businessName: e.target.value })}
               disabled={isLoading}
@@ -103,7 +102,6 @@ function KYCVerificationForm() {
             <Input
               id="businessAddress"
               required
-              placeholder="123 Main St, City, State, ZIP"
               value={formData.businessAddress}
               onChange={(e) => setFormData({ ...formData, businessAddress: e.target.value })}
               disabled={isLoading}
@@ -126,7 +124,6 @@ function KYCVerificationForm() {
             <Input
               id="taxId"
               required
-              placeholder="XX-XXXXXXX"
               value={formData.taxId}
               onChange={(e) => setFormData({ ...formData, taxId: e.target.value })}
               disabled={isLoading}
@@ -137,7 +134,6 @@ function KYCVerificationForm() {
             <Label htmlFor="description">Business Description</Label>
             <Textarea
               id="description"
-              placeholder="Tell us about your business..."
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               disabled={isLoading}

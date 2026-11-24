@@ -82,15 +82,6 @@ const FIELD_ICONS: Record<ProfileField, React.ComponentType<{ className?: string
 }
 
 const INPUT_TYPES: Partial<Record<ProfileField, string>> = { EMAIL: 'email', PHONE: 'tel' }
-const PLACEHOLDERS: Record<ProfileField, string> = {
-  EMAIL: 'you@business.co.ke',
-  PHONE: '0712 345 678',
-  FULL_NAME: 'As it appears on your ID',
-  BUSINESS_NAME: 'As registered with the registrar',
-  BUSINESS_ADDRESS: 'Building, street, town',
-  TAX_ID: 'A012345678Z',
-}
-
 const STATUS_STYLES: Record<Status, { label: string; icon: React.ComponentType<{ className?: string }>; className: string }> = {
   PENDING_VERIFICATION: { label: 'Awaiting code', icon: KeyRound, className: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' },
   PENDING_REVIEW:       { label: 'Under review',  icon: Clock,    className: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' },
@@ -416,9 +407,9 @@ function ChangeDialog({
             <div className="space-y-1.5">
               <Label htmlFor="pc-new">New {field.label.toLowerCase()}</Label>
               {field.field === 'BUSINESS_ADDRESS' ? (
-                <Textarea id="pc-new" rows={2} value={newValue} onChange={(e) => setNewValue(e.target.value)} placeholder={PLACEHOLDERS[field.field]} required />
+                <Textarea id="pc-new" rows={2} value={newValue} onChange={(e) => setNewValue(e.target.value)} required />
               ) : (
-                <Input id="pc-new" type={INPUT_TYPES[field.field] ?? 'text'} value={newValue} onChange={(e) => setNewValue(e.target.value)} placeholder={PLACEHOLDERS[field.field]} autoComplete="off" required />
+                <Input id="pc-new" type={INPUT_TYPES[field.field] ?? 'text'} value={newValue} onChange={(e) => setNewValue(e.target.value)} autoComplete="off" required />
               )}
             </div>
 
@@ -438,7 +429,7 @@ function ChangeDialog({
                 <span className="font-normal text-muted-foreground">{needsNote ? '(required)' : '(optional)'}</span>
               </Label>
               <Textarea id="pc-note" rows={2} maxLength={500} value={reasonNote} onChange={(e) => setReasonNote(e.target.value)}
-                placeholder={needsNote ? 'Tell us why you need this change (at least 10 characters)' : 'Anything the reviewer should know'} />
+                />
             </div>
 
             {isReview && (
@@ -507,7 +498,6 @@ function ChangeDialog({
               value={code}
               disabled={busy}
               onChange={(e) => onCodeChange(e.target.value)}
-              placeholder="000000"
               className="h-14 text-center font-mono text-2xl tracking-[0.45em]"
             />
             <p className="text-center text-xs text-muted-foreground">We&apos;ll confirm automatically once all {CODE_LENGTH} digits are in.</p>

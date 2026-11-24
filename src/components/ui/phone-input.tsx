@@ -136,7 +136,6 @@ export function PhoneInput({
           value={localText}
           onChange={handleChange}
           onBlur={handleBlur}
-          placeholder="0712 345 678"
           className={cn(
             'flex-1 bg-transparent pl-3 pr-3 outline-none placeholder:text-muted-foreground',
             'disabled:cursor-not-allowed',
